@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="My Fridge icon">
+  <rect width="512" height="512" rx="96" fill="#f7f4ee"/>
+  <rect x="134" y="70" width="244" height="372" rx="42" fill="#3f7d58"/>
+  <rect x="166" y="112" width="180" height="128" rx="22" fill="#f1f7ed"/>
+  <rect x="166" y="272" width="180" height="128" rx="22" fill="#f1f7ed"/>
+  <circle cx="318" cy="310" r="14" fill="#e0a458"/>
+  <circle cx="318" cy="154" r="14" fill="#e0a458"/>
+</svg>
