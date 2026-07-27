@@ -22,7 +22,7 @@ export function App() {
       <main className="pageFrame">
         {page === 'today' && <TodayPage />}
         {page === 'inventory' && <InventoryPage appData={appData} onChange={updateAppData} />}
-        {page === 'recipes' && <RecipesPage />}
+        {page === 'recipes' && <RecipesPage appData={appData} onChange={updateAppData} />}
         {page === 'settings' && <SettingsPage />}
       </main>
       <BottomNav activePage={page} onChange={setPage} />

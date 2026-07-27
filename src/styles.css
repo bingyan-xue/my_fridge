@@ -233,11 +233,73 @@ button {
   color: #9b2e20;
 }
 
+.iconButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.secondaryButton {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #cbd6c9;
+  border-radius: 8px;
+  background: #eef4eb;
+  color: #265d3d;
+  font-weight: 800;
+}
+
+.recipeIngredientRows {
+  display: grid;
+  gap: 10px;
+  margin: 8px 0 10px;
+}
+
+.recipeIngredientRow {
+  display: grid;
+  grid-template-columns: minmax(88px, 1fr) 78px 74px auto 44px;
+  gap: 8px;
+  align-items: center;
+}
+
+.compactCheck {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 4px;
+  color: #4b5d51;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.compactCheck input {
+  width: 16px;
+  min-height: 16px;
+}
+
+.ingredientSummary {
+  color: #4b5d51;
+  font-size: 14px;
+}
+
 .emptyText {
   padding: 14px;
   border: 1px dashed #cbd6c9;
   border-radius: 8px;
   background: rgba(255, 253, 250, 0.72);
+}
+
+@media (max-width: 420px) {
+  .recipeIngredientRow {
+    grid-template-columns: minmax(0, 1fr) 72px 68px 44px;
+  }
+
+  .recipeIngredientRow .compactCheck {
+    grid-column: 1 / -1;
+    min-height: 28px;
+  }
 }
 
 .bottomNav {
