@@ -133,11 +133,15 @@ export const defaultSettings = {
   updatedAt: sampleTimestamp,
 };
 
-export const sampleAppData: AppData = {
-  schemaVersion: 1,
-  ingredients: sampleIngredients,
-  recipes: builtInRecipes,
-  mealPlans: [],
-  inventoryTransactions: [],
-  settings: defaultSettings,
-};
+export function createSampleAppData(): AppData {
+  return {
+    schemaVersion: 1,
+    ingredients: structuredClone(sampleIngredients),
+    recipes: structuredClone(builtInRecipes),
+    mealPlans: [],
+    inventoryTransactions: [],
+    settings: { ...defaultSettings },
+  };
+}
+
+export const sampleAppData: AppData = createSampleAppData();
