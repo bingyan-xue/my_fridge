@@ -26,6 +26,17 @@ select {
   font: inherit;
 }
 
+input,
+select {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #cbd6c9;
+  border-radius: 8px;
+  background: #fffdfa;
+  color: #28352c;
+  padding: 10px 12px;
+}
+
 button {
   cursor: pointer;
 }
@@ -54,6 +65,179 @@ button {
   margin: 0;
   color: #617067;
   line-height: 1.55;
+}
+
+.stackPage {
+  display: grid;
+  gap: 16px;
+}
+
+.formBlock {
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid #d9dfd5;
+  border-radius: 8px;
+  background: rgba(255, 253, 250, 0.86);
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.fieldGroup {
+  display: grid;
+  gap: 6px;
+}
+
+.fieldGroup label,
+.tagFieldset legend,
+.quantityRow label span {
+  color: #4b5d51;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tagFieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.tagGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.checkTag {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #d9dfd5;
+  border-radius: 8px;
+  background: #fffdfa;
+  padding: 6px 9px;
+  color: #36503f;
+  font-size: 13px;
+}
+
+.checkTag input {
+  width: 16px;
+  min-height: 16px;
+  margin: 0;
+}
+
+.primaryButton,
+.iconButton {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 8px;
+}
+
+.primaryButton {
+  background: #326f4b;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.itemList {
+  display: grid;
+  gap: 12px;
+}
+
+.listItem {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #d9dfd5;
+  border-radius: 8px;
+  background: #fffdfa;
+}
+
+.itemHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.itemHeader h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.itemHeader p {
+  font-size: 13px;
+}
+
+.statusPill {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.status-normal {
+  background: #e7efe4;
+  color: #265d3d;
+}
+
+.status-expiringSoon {
+  background: #fff1bd;
+  color: #775400;
+}
+
+.status-expired {
+  background: #ffe0dc;
+  color: #9b2e20;
+}
+
+.status-unknown {
+  background: #e8e9e4;
+  color: #566058;
+}
+
+.quantityRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 44px;
+  align-items: end;
+  gap: 10px;
+}
+
+.quantityRow label {
+  display: grid;
+  gap: 6px;
+}
+
+.unitText {
+  min-height: 44px;
+  align-content: center;
+  color: #4b5d51;
+  font-weight: 800;
+}
+
+.iconButton {
+  border: 1px solid #e6d3cc;
+  background: #fff4f1;
+  color: #9b2e20;
+}
+
+.emptyText {
+  padding: 14px;
+  border: 1px dashed #cbd6c9;
+  border-radius: 8px;
+  background: rgba(255, 253, 250, 0.72);
 }
 
 .bottomNav {
