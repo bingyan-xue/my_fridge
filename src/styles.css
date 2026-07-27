@@ -284,6 +284,52 @@ button {
   font-size: 14px;
 }
 
+.mealGrid,
+.mealItemList {
+  display: grid;
+  gap: 12px;
+}
+
+.mealCard,
+.mealItem {
+  display: grid;
+  gap: 12px;
+  border: 1px solid #d9dfd5;
+  border-radius: 8px;
+  background: #fffdfa;
+  padding: 14px;
+}
+
+.mealItem {
+  background: #fbfaf6;
+}
+
+.mealItemDone {
+  border-color: #b9d0b5;
+  background: #f0f6ed;
+}
+
+.mealItem h3 {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+
+.reasonList {
+  margin: 0;
+  padding-left: 18px;
+  color: #36503f;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.warningText {
+  border-radius: 8px;
+  background: #fff5d1;
+  color: #775400;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
 .emptyText {
   padding: 14px;
   border: 1px dashed #cbd6c9;

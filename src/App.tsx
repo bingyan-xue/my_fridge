@@ -20,7 +20,7 @@ export function App() {
   return (
     <div className="appShell">
       <main className="pageFrame">
-        {page === 'today' && <TodayPage />}
+        {page === 'today' && <TodayPage appData={appData} onChange={updateAppData} />}
         {page === 'inventory' && <InventoryPage appData={appData} onChange={updateAppData} />}
         {page === 'recipes' && <RecipesPage appData={appData} onChange={updateAppData} />}
         {page === 'settings' && <SettingsPage />}

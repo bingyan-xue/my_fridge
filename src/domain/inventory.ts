@@ -1,7 +1,7 @@
 import { normalizeIngredientName } from './aliases';
 import { applyDefaultExpiry } from './expiry';
 import { defaultShelfLifeByCategory } from './sampleData';
-import type { IngredientItem, NutritionTag, Unit } from './types';
+import type { AppData, IngredientItem, InventoryTransaction, NutritionTag, Unit } from './types';
 
 export type IngredientFormInput = {
   name: string;
@@ -49,4 +49,104 @@ export function adjustIngredientQuantity(
   changedAt: string,
 ): IngredientItem[] {
   return items.map((item) => (item.id === id ? { ...item, quantity, updatedAt: changedAt } : item));
+}
+
+export function completePlannedMealItem(data: AppData, mealPlanId: string, itemId: string, now: string): AppData {
+  const plan = data.mealPlans.find((candidate) => candidate.id === mealPlanId);
+  const meal = plan?.meals.find((candidate) => candidate.items.some((item) => item.id === itemId));
+  const item = meal?.items.find((candidate) => candidate.id === itemId);
+  if (!plan || !meal || !item || item.status === 'completed') {
+    return data;
+  }
+
+  const transactions: InventoryTransaction[] = item.plannedConsumption.map((consumption) => ({
+    id: `tx-${crypto.randomUUID()}`,
+    ingredientItemId: consumption.ingredientItemId,
+    mealPlanId,
+    plannedMealItemId: itemId,
+    quantityDelta: -consumption.quantity,
+    unit: consumption.unit,
+    reason: 'mealCompleted',
+    createdAt: now,
+  }));
+
+  return {
+    ...data,
+    ingredients: data.ingredients.map((ingredient) => {
+      const delta = transactions
+        .filter((transaction) => transaction.ingredientItemId === ingredient.id)
+        .reduce((sum, transaction) => sum + transaction.quantityDelta, 0);
+      return delta === 0 ? ingredient : { ...ingredient, quantity: ingredient.quantity + delta, updatedAt: now };
+    }),
+    mealPlans: data.mealPlans.map((candidatePlan) =>
+      candidatePlan.id === mealPlanId
+        ? {
+            ...candidatePlan,
+            updatedAt: now,
+            meals: candidatePlan.meals.map((candidateMeal) => ({
+              ...candidateMeal,
+              items: candidateMeal.items.map((candidateItem) =>
+                candidateItem.id === itemId ? { ...candidateItem, status: 'completed', locked: true } : candidateItem,
+              ),
+            })),
+          }
+        : candidatePlan,
+    ),
+    inventoryTransactions: [...data.inventoryTransactions, ...transactions],
+  };
+}
+
+export function undoCompletedMealItem(data: AppData, mealPlanId: string, itemId: string, now: string): AppData {
+  const originalTransactions = data.inventoryTransactions.filter(
+    (transaction) =>
+      transaction.mealPlanId === mealPlanId &&
+      transaction.plannedMealItemId === itemId &&
+      transaction.reason === 'mealCompleted',
+  );
+  const alreadyUndoneIds = new Set(
+    data.inventoryTransactions
+      .filter((transaction) => transaction.reason === 'mealCompletionUndone' && transaction.relatedTransactionId)
+      .map((transaction) => transaction.relatedTransactionId),
+  );
+  const transactionsToReverse = originalTransactions.filter((transaction) => !alreadyUndoneIds.has(transaction.id));
+  if (transactionsToReverse.length === 0) {
+    return data;
+  }
+
+  const reverseTransactions: InventoryTransaction[] = transactionsToReverse.map((transaction) => ({
+    id: `tx-${crypto.randomUUID()}`,
+    ingredientItemId: transaction.ingredientItemId,
+    mealPlanId,
+    plannedMealItemId: itemId,
+    quantityDelta: -transaction.quantityDelta,
+    unit: transaction.unit,
+    reason: 'mealCompletionUndone',
+    relatedTransactionId: transaction.id,
+    createdAt: now,
+  }));
+
+  return {
+    ...data,
+    ingredients: data.ingredients.map((ingredient) => {
+      const delta = reverseTransactions
+        .filter((transaction) => transaction.ingredientItemId === ingredient.id)
+        .reduce((sum, transaction) => sum + transaction.quantityDelta, 0);
+      return delta === 0 ? ingredient : { ...ingredient, quantity: ingredient.quantity + delta, updatedAt: now };
+    }),
+    mealPlans: data.mealPlans.map((candidatePlan) =>
+      candidatePlan.id === mealPlanId
+        ? {
+            ...candidatePlan,
+            updatedAt: now,
+            meals: candidatePlan.meals.map((candidateMeal) => ({
+              ...candidateMeal,
+              items: candidateMeal.items.map((candidateItem) =>
+                candidateItem.id === itemId ? { ...candidateItem, status: 'planned', locked: false } : candidateItem,
+              ),
+            })),
+          }
+        : candidatePlan,
+    ),
+    inventoryTransactions: [...data.inventoryTransactions, ...reverseTransactions],
+  };
 }
