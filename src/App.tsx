@@ -23,7 +23,7 @@ export function App() {
         {page === 'today' && <TodayPage appData={appData} onChange={updateAppData} />}
         {page === 'inventory' && <InventoryPage appData={appData} onChange={updateAppData} />}
         {page === 'recipes' && <RecipesPage appData={appData} onChange={updateAppData} />}
-        {page === 'settings' && <SettingsPage />}
+        {page === 'settings' && <SettingsPage appData={appData} onChange={updateAppData} />}
       </main>
       <BottomNav activePage={page} onChange={setPage} />
     </div>
