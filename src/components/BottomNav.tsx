@@ -1,22 +1,24 @@
 import { BookOpen, CalendarDays, Refrigerator, Settings } from 'lucide-react';
+import type { Translation } from '../i18n/translations';
 
 export type PageId = 'today' | 'inventory' | 'recipes' | 'settings';
 
 type BottomNavProps = {
   activePage: PageId;
   onChange: (page: PageId) => void;
+  t: Translation;
 };
 
-const navItems: Array<{ id: PageId; label: string; icon: typeof CalendarDays }> = [
-  { id: 'today', label: '今日', icon: CalendarDays },
-  { id: 'inventory', label: '库存', icon: Refrigerator },
-  { id: 'recipes', label: '菜谱', icon: BookOpen },
-  { id: 'settings', label: '设置', icon: Settings },
+const navItems: Array<{ id: PageId; labelKey: PageId; icon: typeof CalendarDays }> = [
+  { id: 'today', labelKey: 'today', icon: CalendarDays },
+  { id: 'inventory', labelKey: 'inventory', icon: Refrigerator },
+  { id: 'recipes', labelKey: 'recipes', icon: BookOpen },
+  { id: 'settings', labelKey: 'settings', icon: Settings },
 ];
 
-export function BottomNav({ activePage, onChange }: BottomNavProps) {
+export function BottomNav({ activePage, onChange, t }: BottomNavProps) {
   return (
-    <nav className="bottomNav" aria-label="主导航">
+    <nav className="bottomNav" aria-label={t.nav.ariaLabel}>
       {navItems.map((item) => {
         const Icon = item.icon;
         return (
@@ -27,7 +29,7 @@ export function BottomNav({ activePage, onChange }: BottomNavProps) {
             onClick={() => onChange(item.id)}
           >
             <Icon aria-hidden="true" size={20} />
-            <span>{item.label}</span>
+            <span>{t.nav[item.labelKey]}</span>
           </button>
         );
       })}

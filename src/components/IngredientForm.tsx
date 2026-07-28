@@ -4,27 +4,16 @@ import { useState } from 'react';
 import { ingredientCategories } from '../domain/sampleData';
 import type { IngredientFormInput } from '../domain/inventory';
 import type { IngredientItem, NutritionTag, Unit } from '../domain/types';
+import type { Translation } from '../i18n/translations';
 
 type IngredientFormProps = {
   onSubmit: (input: IngredientFormInput) => void;
+  t: Translation;
 };
 
 const units: Unit[] = ['个', '根', '把', 'g', 'kg', 'ml', 'L', '袋', '盒', '包', '瓶', '斤'];
-const storageLocations: Array<{ value: IngredientItem['storageLocation']; label: string }> = [
-  { value: 'fridge', label: '冷藏' },
-  { value: 'freezer', label: '冷冻' },
-  { value: 'pantry', label: '常温' },
-  { value: 'other', label: '其他' },
-];
-const nutritionTags: Array<{ value: NutritionTag; label: string }> = [
-  { value: 'carb', label: '主食' },
-  { value: 'protein', label: '蛋白质' },
-  { value: 'vegetable', label: '蔬菜' },
-  { value: 'fruit', label: '水果' },
-  { value: 'dairy', label: '奶制品' },
-  { value: 'fiber', label: '纤维' },
-  { value: 'fat', label: '脂质' },
-];
+const storageLocations: Array<IngredientItem['storageLocation']> = ['fridge', 'freezer', 'pantry', 'other'];
+const nutritionTags: NutritionTag[] = ['carb', 'protein', 'vegetable', 'fruit', 'dairy', 'fiber', 'fat'];
 
 const defaultInput: IngredientFormInput = {
   name: '',
@@ -36,7 +25,7 @@ const defaultInput: IngredientFormInput = {
   nutritionTags: ['vegetable', 'fiber'],
 };
 
-export function IngredientForm({ onSubmit }: IngredientFormProps) {
+export function IngredientForm({ onSubmit, t }: IngredientFormProps) {
   const [input, setInput] = useState<IngredientFormInput>(defaultInput);
 
   function update<K extends keyof IngredientFormInput>(key: K, value: IngredientFormInput[K]) {
@@ -73,37 +62,37 @@ export function IngredientForm({ onSubmit }: IngredientFormProps) {
   return (
     <form className="formBlock" onSubmit={handleSubmit}>
       <div className="fieldGroup">
-        <label htmlFor="ingredient-name">食材名称</label>
+        <label htmlFor="ingredient-name">{t.inventory.form.name}</label>
         <input
           id="ingredient-name"
           value={input.name}
           onChange={(event) => update('name', event.target.value)}
-          placeholder="例如 鸡蛋"
+          placeholder={t.inventory.form.namePlaceholder}
         />
       </div>
 
       <div className="formGrid">
         <div className="fieldGroup">
-          <label htmlFor="ingredient-category">类别</label>
+          <label htmlFor="ingredient-category">{t.inventory.form.category}</label>
           <select id="ingredient-category" value={input.category} onChange={(event) => updateCategory(event.target.value)}>
             {ingredientCategories.map((category) => (
               <option key={category.id} value={category.id}>
-                {category.name}
+                {t.labels.category[category.id as keyof typeof t.labels.category] ?? category.name}
               </option>
             ))}
           </select>
         </div>
 
         <div className="fieldGroup">
-          <label htmlFor="ingredient-storage">位置</label>
+          <label htmlFor="ingredient-storage">{t.inventory.form.storage}</label>
           <select
             id="ingredient-storage"
             value={input.storageLocation}
             onChange={(event) => update('storageLocation', event.target.value as IngredientItem['storageLocation'])}
           >
             {storageLocations.map((location) => (
-              <option key={location.value} value={location.value}>
-                {location.label}
+              <option key={location} value={location}>
+                {t.labels.storage[location]}
               </option>
             ))}
           </select>
@@ -112,7 +101,7 @@ export function IngredientForm({ onSubmit }: IngredientFormProps) {
 
       <div className="formGrid">
         <div className="fieldGroup">
-          <label htmlFor="ingredient-quantity">数量</label>
+          <label htmlFor="ingredient-quantity">{t.inventory.form.quantity}</label>
           <input
             id="ingredient-quantity"
             min="0"
@@ -124,11 +113,11 @@ export function IngredientForm({ onSubmit }: IngredientFormProps) {
         </div>
 
         <div className="fieldGroup">
-          <label htmlFor="ingredient-unit">单位</label>
+          <label htmlFor="ingredient-unit">{t.inventory.form.unit}</label>
           <select id="ingredient-unit" value={input.unit} onChange={(event) => update('unit', event.target.value as Unit)}>
             {units.map((unit) => (
               <option key={unit} value={unit}>
-                {unit}
+                {t.labels.unit[unit]}
               </option>
             ))}
           </select>
@@ -136,21 +125,21 @@ export function IngredientForm({ onSubmit }: IngredientFormProps) {
       </div>
 
       <div className="fieldGroup">
-        <label htmlFor="ingredient-expiry">过期日期</label>
+        <label htmlFor="ingredient-expiry">{t.inventory.form.expiryDate}</label>
         <input id="ingredient-expiry" type="date" value={input.expiryDate} onChange={(event) => update('expiryDate', event.target.value)} />
       </div>
 
       <fieldset className="tagFieldset">
-        <legend>营养标签</legend>
+        <legend>{t.inventory.form.nutritionTags}</legend>
         <div className="tagGrid">
           {nutritionTags.map((tag) => (
-            <label key={tag.value} className="checkTag">
+            <label key={tag} className="checkTag">
               <input
-                checked={input.nutritionTags.includes(tag.value)}
+                checked={input.nutritionTags.includes(tag)}
                 type="checkbox"
-                onChange={() => toggleNutritionTag(tag.value)}
+                onChange={() => toggleNutritionTag(tag)}
               />
-              <span>{tag.label}</span>
+              <span>{t.labels.nutrition[tag]}</span>
             </label>
           ))}
         </div>
@@ -158,7 +147,7 @@ export function IngredientForm({ onSubmit }: IngredientFormProps) {
 
       <button className="primaryButton" type="submit">
         <Plus aria-hidden="true" size={18} />
-        添加食材
+        {t.inventory.form.submit}
       </button>
     </form>
   );

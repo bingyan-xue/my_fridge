@@ -2,10 +2,12 @@ import { IngredientForm } from '../components/IngredientForm';
 import { IngredientList } from '../components/IngredientList';
 import { adjustIngredientQuantity, createIngredientDraft, deleteIngredient, upsertIngredient } from '../domain/inventory';
 import type { AppData } from '../domain/types';
+import type { Translation } from '../i18n/translations';
 
 type InventoryPageProps = {
   appData: AppData;
   onChange: (data: AppData) => void;
+  t: Translation;
 };
 
 function getLocalDateString(date = new Date()): string {
@@ -15,7 +17,7 @@ function getLocalDateString(date = new Date()): string {
   return `${year}-${month}-${day}`;
 }
 
-export function InventoryPage({ appData, onChange }: InventoryPageProps) {
+export function InventoryPage({ appData, onChange, t }: InventoryPageProps) {
   const today = getLocalDateString();
 
   function updateIngredients(ingredients: AppData['ingredients']) {
@@ -24,15 +26,17 @@ export function InventoryPage({ appData, onChange }: InventoryPageProps) {
 
   return (
     <section className="stackPage">
-      <h1>库存</h1>
-      <p>记录家里已有的食材。</p>
+      <h1>{t.inventory.title}</h1>
+      <p>{t.inventory.description}</p>
       <IngredientForm
+        t={t}
         onSubmit={(input) => {
           updateIngredients(upsertIngredient(appData.ingredients, createIngredientDraft(input, today)));
         }}
       />
       <IngredientList
         ingredients={appData.ingredients}
+        t={t}
         today={today}
         onDelete={(id) => updateIngredients(deleteIngredient(appData.ingredients, id))}
         onQuantityChange={(id, quantity) => updateIngredients(adjustIngredientQuantity(appData.ingredients, id, quantity, new Date().toISOString()))}

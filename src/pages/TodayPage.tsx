@@ -3,10 +3,12 @@ import { MealCard } from '../components/MealCard';
 import { completePlannedMealItem, undoCompletedMealItem } from '../domain/inventory';
 import { generateMeal, type GenerateMealResult } from '../domain/planner';
 import type { AppData, Meal, MealPlan } from '../domain/types';
+import type { Translation } from '../i18n/translations';
 
 type TodayPageProps = {
   appData: AppData;
   onChange: (data: AppData) => void;
+  t: Translation;
 };
 
 const mealTypes: Array<Meal['mealType']> = ['breakfast', 'lunch', 'dinner'];
@@ -47,7 +49,7 @@ function mealFailureLabel(result: GenerateMealResult): string | undefined {
   return result.status === 'failed' ? result.reason : undefined;
 }
 
-export function TodayPage({ appData, onChange }: TodayPageProps) {
+export function TodayPage({ appData, onChange, t }: TodayPageProps) {
   const today = getLocalDateString();
   const todayPlan = appData.mealPlans.find((plan) => plan.date === today);
   const [failures, setFailures] = useState<Partial<Record<Meal['mealType'], string>>>({});
@@ -96,15 +98,16 @@ export function TodayPage({ appData, onChange }: TodayPageProps) {
 
   return (
     <section className="stackPage">
-      <h1>今日</h1>
-      <p>随机生成早餐、午餐或晚餐。</p>
+      <h1>{t.today.title}</h1>
+      <p>{t.today.description}</p>
       <div className="mealGrid">
         {mealTypes.map((mealType) => (
           <MealCard
             key={mealType}
-            failureReason={failures[mealType]}
+            failureReason={failures[mealType] ? t.plannerFailure[failures[mealType] as keyof typeof t.plannerFailure] : undefined}
             meal={todayPlan?.meals.find((meal) => meal.mealType === mealType)}
             mealType={mealType}
+            t={t}
             onCancel={handleCancel}
             onConfirm={handleConfirm}
             onGenerate={() => handleGenerate(mealType)}

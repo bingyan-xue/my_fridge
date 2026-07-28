@@ -1,7 +1,7 @@
 # My Fridge Project State
 
-> 更新日期：2026-07-27  
-> 当前阶段：Demo V1 核心闭环已跑通，可本地试用。  
+> 更新日期：2026-07-28  
+> 当前阶段：Demo V1 核心闭环已跑通，默认英文界面已补回，支持切换简体中文。  
 > 本文件用于记录项目当前状态。后续开发前，先看这里，再看 PRD、ARCH 和实施计划。
 
 ## 1. 当前已完成
@@ -189,14 +189,38 @@ http://127.0.0.1:5173/
 - `src/components/MealCard.tsx`
 - `src/pages/TodayPage.tsx`
 
+#### 语言和翻译
+
+已实现：
+
+- 默认界面语言是英文，符合 PRD 的“先制作英文界面”要求。
+- 设置页可以切换 English / 简体中文。
+- 用户语言选择会保存到 localStorage。
+- 新增集中式文案资源，主要界面文案不再直接散落硬编码在组件里。
+- 主导航、页面标题、按钮、表单字段、空状态、状态标签、设置页提示会跟随语言切换。
+
+核心文件：
+
+- `src/i18n/translations.ts`
+- `src/App.tsx`
+- `src/components/BottomNav.tsx`
+- `src/pages/SettingsPage.tsx`
+
 #### 设置页
 
 已实现：
 
 - 本地数据提示。
+- 语言切换。
 - 导出数据。
 - 导入数据。
-- 导入前覆盖提醒：
+- 导入前覆盖提醒。英文默认文案：
+
+```text
+Importing will overwrite your current local data. Continue?
+```
+
+中文文案：
 
 ```text
 导入会覆盖当前本地数据。是否继续？
@@ -221,7 +245,7 @@ npm.cmd run build
 结果：
 
 - 8 个测试文件通过。
-- 33 个测试通过。
+- 34 个测试通过。
 - TypeScript 检查通过。
 - Vite 生产构建通过。
 
@@ -235,6 +259,8 @@ npm.cmd run build
 - 菜谱 helper
 - 餐点生成引擎
 - App 基础导航 smoke test
+- 默认英文界面
+- 设置页语言切换和本地保存
 
 ## 3. Git 提交节点
 
@@ -246,6 +272,7 @@ master
 
 最近实现提交：
 
+- 本次更新：默认英文界面和语言切换
 - `a0b7858` feat: add settings data actions
 - `9f9d6de` feat: add today meal planning flow
 - `298fcc3` feat: add meal planner engine
@@ -302,6 +329,17 @@ master
 #### 单位不一致确认还没完整 UI
 
 planner 会把非确定性单位换算标记为 `requiresConfirmation`，但确认扣减页面还没有专门提示用户“这个单位需要你检查”。
+
+#### 双语化还没有覆盖内置业务数据
+
+当前已完成主要界面文案的中英切换，但还没有完整覆盖：
+
+- 内置菜谱名称。
+- 示例库存食材名称。
+- planner 生成的推荐理由，例如“用了快过期的...”。
+- storage/domain 抛出的错误文案。
+
+这些属于下一轮数据模型和生成引擎本地化，不应继续散落硬编码。
 
 ### 4.3 低优先级
 
@@ -373,6 +411,7 @@ Cannot read directory "../..": Access is denied.
 - 单位不一致时的提示。
 - 恢复示例数据前加确认。
 - 导入成功后显示页面内提示。
+- 补齐内置菜谱、示例食材、推荐理由、错误提示的双语资源。
 
 ### 5.3 第三优先级：加强生成引擎
 

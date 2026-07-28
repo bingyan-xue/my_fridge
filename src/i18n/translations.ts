@@ -1,0 +1,338 @@
+import type { ExpiryStatus, IngredientItem, MealType, NutritionTag, Recipe, Unit } from '../domain/types';
+
+export type Language = 'en' | 'zh-CN';
+
+export const DEFAULT_LANGUAGE: Language = 'en';
+export const LANGUAGE_STORAGE_KEY = 'my-fridge-language';
+
+export const translations = {
+  en: {
+    nav: {
+      ariaLabel: 'Main navigation',
+      today: 'Today',
+      inventory: 'Inventory',
+      recipes: 'Recipes',
+      settings: 'Settings',
+    },
+    common: {
+      delete: 'Delete',
+      quantity: 'Quantity',
+      importFailed: 'Import failed',
+    },
+    today: {
+      title: 'Today',
+      description: 'Generate breakfast, lunch, or dinner from what you already have.',
+    },
+    inventory: {
+      title: 'Inventory',
+      description: 'Record the ingredients you have at home.',
+      form: {
+        name: 'Ingredient name',
+        namePlaceholder: 'e.g. eggs',
+        category: 'Category',
+        storage: 'Storage',
+        quantity: 'Quantity',
+        unit: 'Unit',
+        expiryDate: 'Expiry date',
+        nutritionTags: 'Nutrition tags',
+        submit: 'Add ingredient',
+      },
+      list: {
+        empty: 'No ingredients yet.',
+        expiresOn: (date: string) => `Expires on ${date}`,
+        expiryMissing: 'No expiry date',
+        deleteLabel: (name: string) => `Delete ${name}`,
+      },
+    },
+    recipes: {
+      title: 'Recipes',
+      description: 'Manage built-in recipes and your own recipes.',
+      form: {
+        name: 'Recipe name',
+        namePlaceholder: 'e.g. tomato eggs',
+        type: 'Type',
+        servings: 'Servings',
+        mealTypes: 'Meal types',
+        ingredients: 'Required ingredients',
+        ingredientNameLabel: (index: number) => `Ingredient ${index} name`,
+        ingredientQuantityLabel: (index: number) => `Ingredient ${index} quantity`,
+        ingredientUnitLabel: (index: number) => `Ingredient ${index} unit`,
+        ingredientPlaceholder: 'Ingredient',
+        required: 'Required',
+        deleteIngredientRow: 'Delete ingredient row',
+        addIngredientRow: 'Add ingredient row',
+        nutritionTags: 'Nutrition tags',
+        submit: 'Save recipe',
+      },
+      list: {
+        empty: 'No recipes yet.',
+        builtIn: 'Built-in',
+        userCreated: 'Custom',
+        deleteLabel: (name: string) => `Delete ${name}`,
+      },
+    },
+    settings: {
+      title: 'Settings',
+      description: 'Manage local data and sample data.',
+      notice: 'Data is saved only on this device. If you clear browser data, switch browsers, or move devices, it will not sync automatically.',
+      language: 'Language',
+      english: 'English',
+      simplifiedChinese: 'Simplified Chinese',
+      exportData: 'Export data',
+      importData: 'Import data',
+      resetSampleData: 'Reset sample data',
+      importOverwriteConfirm: 'Importing will overwrite your current local data. Continue?',
+    },
+    meal: {
+      breakfast: 'Breakfast',
+      lunch: 'Lunch',
+      dinner: 'Dinner',
+      itemCount: (count: number) => `${count} item${count === 1 ? '' : 's'}`,
+      notGenerated: 'Not generated yet',
+      generate: 'Generate',
+      empty: 'Generate this meal first.',
+      confirm: 'Confirm',
+      cancel: 'Cancel',
+    },
+    labels: {
+      storage: {
+        fridge: 'Fridge',
+        freezer: 'Freezer',
+        pantry: 'Pantry',
+        other: 'Other',
+      } satisfies Record<IngredientItem['storageLocation'], string>,
+      expiryStatus: {
+        expired: 'Expired',
+        expiringSoon: 'Expiring soon',
+        normal: 'Good',
+        unknown: 'Unknown',
+      } satisfies Record<ExpiryStatus, string>,
+      nutrition: {
+        carb: 'Carb',
+        fat: 'Fat',
+        fiber: 'Fiber',
+        protein: 'Protein',
+        vegetable: 'Vegetable',
+        fruit: 'Fruit',
+        dairy: 'Dairy',
+      } satisfies Record<NutritionTag, string>,
+      recipeType: {
+        dish: 'Dish',
+        staple: 'Staple',
+        readyToEat: 'Ready to eat',
+        combo: 'Combo meal',
+      } satisfies Record<Recipe['recipeType'], string>,
+      mealType: {
+        breakfast: 'Breakfast',
+        lunch: 'Lunch',
+        dinner: 'Dinner',
+        any: 'Any',
+      } satisfies Record<MealType, string>,
+      unit: {
+        个: 'pcs',
+        根: 'stems',
+        把: 'bunches',
+        g: 'g',
+        kg: 'kg',
+        ml: 'ml',
+        L: 'L',
+        袋: 'bags',
+        盒: 'boxes',
+        包: 'packs',
+        瓶: 'bottles',
+        斤: 'jin',
+      } satisfies Record<Unit, string>,
+      category: {
+        'leafy-greens': 'Leafy greens',
+        vegetables: 'Vegetables',
+        fruit: 'Fruit',
+        eggs: 'Eggs',
+        dairy: 'Dairy',
+        meat: 'Meat',
+        soy: 'Soy products',
+        staple: 'Staples',
+        nuts: 'Nuts',
+        other: 'Other',
+      } satisfies Record<string, string>,
+    },
+    plannerFailure: {
+      缺食材: 'Missing ingredients',
+      数量不足: 'Not enough quantity',
+      单位需要确认: 'Unit needs review',
+      餐次不匹配: 'No recipes for this meal',
+      菜谱不足: 'No recipes yet',
+    },
+  },
+  'zh-CN': {
+    nav: {
+      ariaLabel: '主导航',
+      today: '今日',
+      inventory: '库存',
+      recipes: '菜谱',
+      settings: '设置',
+    },
+    common: {
+      delete: '删除',
+      quantity: '数量',
+      importFailed: '导入失败',
+    },
+    today: {
+      title: '今日',
+      description: '随机生成早餐、午餐或晚餐。',
+    },
+    inventory: {
+      title: '库存',
+      description: '记录家里已有的食材。',
+      form: {
+        name: '食材名称',
+        namePlaceholder: '例如 鸡蛋',
+        category: '类别',
+        storage: '位置',
+        quantity: '数量',
+        unit: '单位',
+        expiryDate: '过期日期',
+        nutritionTags: '营养标签',
+        submit: '添加食材',
+      },
+      list: {
+        empty: '还没有库存食材。',
+        expiresOn: (date: string) => `${date} 过期`,
+        expiryMissing: '未设置过期日',
+        deleteLabel: (name: string) => `删除${name}`,
+      },
+    },
+    recipes: {
+      title: '菜谱',
+      description: '管理内置菜谱和自建菜谱。',
+      form: {
+        name: '菜谱名称',
+        namePlaceholder: '例如 西红柿炒蛋',
+        type: '类型',
+        servings: '份数',
+        mealTypes: '适用餐次',
+        ingredients: '所需食材',
+        ingredientNameLabel: (index: number) => `食材${index}名称`,
+        ingredientQuantityLabel: (index: number) => `食材${index}数量`,
+        ingredientUnitLabel: (index: number) => `食材${index}单位`,
+        ingredientPlaceholder: '食材',
+        required: '必需',
+        deleteIngredientRow: '删除食材行',
+        addIngredientRow: '添加食材行',
+        nutritionTags: '营养标签',
+        submit: '保存菜谱',
+      },
+      list: {
+        empty: '还没有菜谱。',
+        builtIn: '内置',
+        userCreated: '自建',
+        deleteLabel: (name: string) => `删除${name}`,
+      },
+    },
+    settings: {
+      title: '设置',
+      description: '管理本地数据和示例数据。',
+      notice: '数据只保存在当前设备。清除浏览器数据、换浏览器或换设备后，数据不会自动同步。',
+      language: 'Language',
+      english: 'English',
+      simplifiedChinese: '简体中文',
+      exportData: '导出数据',
+      importData: '导入数据',
+      resetSampleData: '恢复示例数据',
+      importOverwriteConfirm: '导入会覆盖当前本地数据。是否继续？',
+    },
+    meal: {
+      breakfast: '早餐',
+      lunch: '午餐',
+      dinner: '晚餐',
+      itemCount: (count: number) => `${count} 个餐项`,
+      notGenerated: '还没有生成',
+      generate: '随机',
+      empty: '可以先随机生成这一餐。',
+      confirm: '确认',
+      cancel: '取消',
+    },
+    labels: {
+      storage: {
+        fridge: '冷藏',
+        freezer: '冷冻',
+        pantry: '常温',
+        other: '其他',
+      } satisfies Record<IngredientItem['storageLocation'], string>,
+      expiryStatus: {
+        expired: '已过期',
+        expiringSoon: '快过期',
+        normal: '正常',
+        unknown: '未知',
+      } satisfies Record<ExpiryStatus, string>,
+      nutrition: {
+        carb: '主食',
+        fat: '脂质',
+        fiber: '纤维',
+        protein: '蛋白质',
+        vegetable: '蔬菜',
+        fruit: '水果',
+        dairy: '奶制品',
+      } satisfies Record<NutritionTag, string>,
+      recipeType: {
+        dish: '菜',
+        staple: '主食',
+        readyToEat: '即食',
+        combo: '组合餐',
+      } satisfies Record<Recipe['recipeType'], string>,
+      mealType: {
+        breakfast: '早餐',
+        lunch: '午餐',
+        dinner: '晚餐',
+        any: '任意',
+      } satisfies Record<MealType, string>,
+      unit: {
+        个: '个',
+        根: '根',
+        把: '把',
+        g: 'g',
+        kg: 'kg',
+        ml: 'ml',
+        L: 'L',
+        袋: '袋',
+        盒: '盒',
+        包: '包',
+        瓶: '瓶',
+        斤: '斤',
+      } satisfies Record<Unit, string>,
+      category: {
+        'leafy-greens': '叶菜',
+        vegetables: '蔬菜',
+        fruit: '水果',
+        eggs: '蛋类',
+        dairy: '奶制品',
+        meat: '肉类',
+        soy: '豆制品',
+        staple: '米面主食',
+        nuts: '坚果',
+        other: '其他',
+      } satisfies Record<string, string>,
+    },
+    plannerFailure: {
+      缺食材: '缺食材',
+      数量不足: '数量不足',
+      单位需要确认: '单位需要确认',
+      餐次不匹配: '餐次不匹配',
+      菜谱不足: '菜谱不足',
+    },
+  },
+} as const;
+
+export type Translation = (typeof translations)[Language];
+
+export function isLanguage(value: string | null): value is Language {
+  return value === 'en' || value === 'zh-CN';
+}
+
+export function loadLanguage(): Language {
+  const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+  return isLanguage(stored) ? stored : DEFAULT_LANGUAGE;
+}
+
+export function saveLanguage(language: Language): void {
+  localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+}

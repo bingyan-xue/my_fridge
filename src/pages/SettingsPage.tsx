@@ -1,14 +1,18 @@
 import type { ChangeEvent } from 'react';
 import { Download, RotateCcw, Upload } from 'lucide-react';
 import type { AppData } from '../domain/types';
+import type { Language, Translation } from '../i18n/translations';
 import { parseImportedData, resetToSampleData, serializeForExport } from '../storage/appStorage';
 
 type SettingsPageProps = {
   appData: AppData;
+  language: Language;
   onChange: (data: AppData) => void;
+  onLanguageChange: (language: Language) => void;
+  t: Translation;
 };
 
-export function SettingsPage({ appData, onChange }: SettingsPageProps) {
+export function SettingsPage({ appData, language, onChange, onLanguageChange, t }: SettingsPageProps) {
   function handleReset() {
     onChange(resetToSampleData());
   }
@@ -29,7 +33,7 @@ export function SettingsPage({ appData, onChange }: SettingsPageProps) {
     if (!file) {
       return;
     }
-    if (!window.confirm('导入会覆盖当前本地数据。是否继续？')) {
+    if (!window.confirm(t.settings.importOverwriteConfirm)) {
       event.currentTarget.value = '';
       return;
     }
@@ -38,7 +42,7 @@ export function SettingsPage({ appData, onChange }: SettingsPageProps) {
       const text = await file.text();
       onChange(parseImportedData(text));
     } catch (error) {
-      window.alert(error instanceof Error ? error.message : '导入失败');
+      window.alert(error instanceof Error ? error.message : t.common.importFailed);
     } finally {
       event.currentTarget.value = '';
     }
@@ -46,23 +50,31 @@ export function SettingsPage({ appData, onChange }: SettingsPageProps) {
 
   return (
     <section className="stackPage">
-      <h1>设置</h1>
-      <p>管理本地数据和示例数据。</p>
-      <p className="noticeText">数据只保存在当前设备。清除浏览器数据、换浏览器或换设备后，数据不会自动同步。</p>
+      <h1>{t.settings.title}</h1>
+      <p>{t.settings.description}</p>
+      <p className="noticeText">{t.settings.notice}</p>
+
+      <div className="fieldGroup">
+        <label htmlFor="language-select">{t.settings.language}</label>
+        <select id="language-select" value={language} onChange={(event) => onLanguageChange(event.target.value as Language)}>
+          <option value="en">{t.settings.english}</option>
+          <option value="zh-CN">{t.settings.simplifiedChinese}</option>
+        </select>
+      </div>
 
       <div className="settingsActions">
         <button className="primaryButton" type="button" onClick={handleExport}>
           <Download aria-hidden="true" size={18} />
-          导出数据
+          {t.settings.exportData}
         </button>
         <label className="fileButton">
           <Upload aria-hidden="true" size={18} />
-          导入数据
+          {t.settings.importData}
           <input accept="application/json" type="file" onChange={handleImport} />
         </label>
         <button className="secondaryButton" type="button" onClick={handleReset}>
           <RotateCcw aria-hidden="true" size={18} />
-          恢复示例数据
+          {t.settings.resetSampleData}
         </button>
       </div>
     </section>

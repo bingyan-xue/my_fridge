@@ -1,5 +1,6 @@
 import { Check, RefreshCw, RotateCcw } from 'lucide-react';
 import type { Meal } from '../domain/types';
+import type { Translation } from '../i18n/translations';
 
 type MealCardProps = {
   mealType: 'breakfast' | 'lunch' | 'dinner';
@@ -8,34 +9,29 @@ type MealCardProps = {
   onGenerate: () => void;
   onConfirm: (itemId: string) => void;
   onCancel: (itemId: string) => void;
+  t: Translation;
 };
 
-const mealLabels = {
-  breakfast: '早餐',
-  lunch: '午餐',
-  dinner: '晚餐',
-};
-
-export function MealCard({ mealType, meal, failureReason, onGenerate, onConfirm, onCancel }: MealCardProps) {
+export function MealCard({ mealType, meal, failureReason, onGenerate, onConfirm, onCancel, t }: MealCardProps) {
   const items = meal?.items ?? [];
 
   return (
     <article className="mealCard">
       <div className="itemHeader">
         <div>
-          <h2>{mealLabels[mealType]}</h2>
-          <p>{items.length > 0 ? `${items.length} 个餐项` : '还没有生成'}</p>
+          <h2>{t.meal[mealType]}</h2>
+          <p>{items.length > 0 ? t.meal.itemCount(items.length) : t.meal.notGenerated}</p>
         </div>
         <button className="secondaryButton" type="button" onClick={onGenerate}>
           <RefreshCw aria-hidden="true" size={16} />
-          随机
+          {t.meal.generate}
         </button>
       </div>
 
       {failureReason && <p className="warningText">{failureReason}</p>}
 
       {items.length === 0 ? (
-        <p className="emptyText">可以先随机生成这一餐。</p>
+        <p className="emptyText">{t.meal.empty}</p>
       ) : (
         <div className="mealItemList">
           {items.map((item) => (
@@ -60,12 +56,12 @@ export function MealCard({ mealType, meal, failureReason, onGenerate, onConfirm,
               {item.status === 'completed' ? (
                 <button className="secondaryButton" type="button" onClick={() => onCancel(item.id)}>
                   <RotateCcw aria-hidden="true" size={16} />
-                  取消
+                  {t.meal.cancel}
                 </button>
               ) : (
                 <button className="primaryButton" type="button" onClick={() => onConfirm(item.id)}>
                   <Check aria-hidden="true" size={16} />
-                  确认
+                  {t.meal.confirm}
                 </button>
               )}
             </section>

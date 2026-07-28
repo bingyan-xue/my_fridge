@@ -1,28 +1,16 @@
 import { Trash2 } from 'lucide-react';
 import type { Recipe } from '../domain/types';
+import type { Translation } from '../i18n/translations';
 
 type RecipeListProps = {
   recipes: Recipe[];
   onDelete: (id: string) => void;
+  t: Translation;
 };
 
-const recipeTypeLabels: Record<Recipe['recipeType'], string> = {
-  dish: '菜',
-  staple: '主食',
-  readyToEat: '即食',
-  combo: '组合餐',
-};
-
-const mealTypeLabels = {
-  breakfast: '早餐',
-  lunch: '午餐',
-  dinner: '晚餐',
-  any: '任意',
-};
-
-export function RecipeList({ recipes, onDelete }: RecipeListProps) {
+export function RecipeList({ recipes, onDelete, t }: RecipeListProps) {
   if (recipes.length === 0) {
-    return <p className="emptyText">还没有菜谱。</p>;
+    return <p className="emptyText">{t.recipes.list.empty}</p>;
   }
 
   return (
@@ -33,12 +21,12 @@ export function RecipeList({ recipes, onDelete }: RecipeListProps) {
             <div>
               <h2>{recipe.name}</h2>
               <p>
-                {recipeTypeLabels[recipe.recipeType]} · {recipe.mealTypes.map((mealType) => mealTypeLabels[mealType]).join('、')} ·{' '}
-                {recipe.source === 'builtIn' ? '内置' : '自建'}
+                {t.labels.recipeType[recipe.recipeType]} · {recipe.mealTypes.map((mealType) => t.labels.mealType[mealType]).join(' / ')} ·{' '}
+                {recipe.source === 'builtIn' ? t.recipes.list.builtIn : t.recipes.list.userCreated}
               </p>
             </div>
             {recipe.source === 'userCreated' && (
-              <button className="iconButton" type="button" aria-label={`删除${recipe.name}`} onClick={() => onDelete(recipe.id)}>
+              <button className="iconButton" type="button" aria-label={t.recipes.list.deleteLabel(recipe.name)} onClick={() => onDelete(recipe.id)}>
                 <Trash2 aria-hidden="true" size={18} />
               </button>
             )}
@@ -47,7 +35,7 @@ export function RecipeList({ recipes, onDelete }: RecipeListProps) {
             {recipe.ingredients
               .filter((ingredient) => ingredient.required)
               .map((ingredient) => `${ingredient.name} ${ingredient.quantity}${ingredient.unit}`)
-              .join('、')}
+              .join(' / ')}
           </p>
         </article>
       ))}

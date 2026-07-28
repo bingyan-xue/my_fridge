@@ -1,31 +1,19 @@
 import { Trash2 } from 'lucide-react';
 import { getEffectiveExpiryDate, getExpiryStatus } from '../domain/expiry';
 import type { IngredientItem } from '../domain/types';
+import type { Translation } from '../i18n/translations';
 
 type IngredientListProps = {
   ingredients: IngredientItem[];
   today: string;
   onQuantityChange: (id: string, quantity: number) => void;
   onDelete: (id: string) => void;
+  t: Translation;
 };
 
-const storageLabels: Record<IngredientItem['storageLocation'], string> = {
-  fridge: '冷藏',
-  freezer: '冷冻',
-  pantry: '常温',
-  other: '其他',
-};
-
-const statusLabels = {
-  expired: '已过期',
-  expiringSoon: '快过期',
-  normal: '正常',
-  unknown: '未知',
-};
-
-export function IngredientList({ ingredients, today, onQuantityChange, onDelete }: IngredientListProps) {
+export function IngredientList({ ingredients, today, onQuantityChange, onDelete, t }: IngredientListProps) {
   if (ingredients.length === 0) {
-    return <p className="emptyText">还没有库存食材。</p>;
+    return <p className="emptyText">{t.inventory.list.empty}</p>;
   }
 
   return (
@@ -39,15 +27,15 @@ export function IngredientList({ ingredients, today, onQuantityChange, onDelete 
               <div>
                 <h2>{item.name}</h2>
                 <p>
-                  {storageLabels[item.storageLocation]} · {expiryDate ? `${expiryDate} 过期` : '未设置过期日'}
+                  {t.labels.storage[item.storageLocation]} · {expiryDate ? t.inventory.list.expiresOn(expiryDate) : t.inventory.list.expiryMissing}
                 </p>
               </div>
-              <span className={`statusPill status-${status}`}>{statusLabels[status]}</span>
+              <span className={`statusPill status-${status}`}>{t.labels.expiryStatus[status]}</span>
             </div>
 
             <div className="quantityRow">
               <label>
-                <span>数量</span>
+                <span>{t.common.quantity}</span>
                 <input
                   min="0"
                   step="0.1"
@@ -57,7 +45,7 @@ export function IngredientList({ ingredients, today, onQuantityChange, onDelete 
                 />
               </label>
               <span className="unitText">{item.unit}</span>
-              <button className="iconButton" type="button" aria-label={`删除${item.name}`} onClick={() => onDelete(item.id)}>
+              <button className="iconButton" type="button" aria-label={t.inventory.list.deleteLabel(item.name)} onClick={() => onDelete(item.id)}>
                 <Trash2 aria-hidden="true" size={18} />
               </button>
             </div>
