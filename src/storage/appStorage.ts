@@ -1,4 +1,4 @@
-import { createSampleAppData } from '../domain/sampleData';
+import { builtInRecipes, createSampleAppData, sampleIngredients } from '../domain/sampleData';
 import type { AppData } from '../domain/types';
 
 export const APP_DATA_KEY = 'my-fridge-app-data';
@@ -37,10 +37,31 @@ export function loadAppData(): AppData {
   try {
     const parsed = JSON.parse(raw) as unknown;
     assertAppData(parsed);
-    return parsed;
+    const refreshed = refreshBuiltInData(parsed);
+    if (JSON.stringify(refreshed) !== JSON.stringify(parsed)) {
+      saveAppData(refreshed);
+    }
+    return refreshed;
   } catch {
     return resetToSampleData();
   }
+}
+
+function refreshBuiltInData(data: AppData): AppData {
+  const sampleIngredientNames = new Map(
+    sampleIngredients.map((ingredient) => [ingredient.id, { name: ingredient.name, canonicalName: ingredient.canonicalName }]),
+  );
+  const builtInRecipeIds = new Set(builtInRecipes.map((recipe) => recipe.id));
+  const userRecipes = data.recipes.filter((recipe) => recipe.source !== 'builtIn' && !builtInRecipeIds.has(recipe.id));
+
+  return {
+    ...data,
+    ingredients: data.ingredients.map((ingredient) => {
+      const current = sampleIngredientNames.get(ingredient.id);
+      return current ? { ...ingredient, ...current } : ingredient;
+    }),
+    recipes: [...structuredClone(builtInRecipes), ...userRecipes],
+  };
 }
 
 export function resetToSampleData(): AppData {

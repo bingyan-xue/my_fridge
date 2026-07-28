@@ -24,7 +24,7 @@ describe('inventory helpers', () => {
       '2026-07-27',
     );
 
-    expect(item.canonicalName).toBe('西红柿');
+    expect(item.canonicalName).toBe('Tomato');
     expect(item.estimatedExpiryDate).toBe('2026-08-03');
   });
 

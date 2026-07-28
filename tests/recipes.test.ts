@@ -19,7 +19,7 @@ describe('recipe helpers', () => {
     );
 
     expect(recipe.source).toBe('userCreated');
-    expect(recipe.ingredients[0].canonicalName).toBe('西红柿');
+    expect(recipe.ingredients[0].canonicalName).toBe('Tomato');
   });
 
   it('upserts and deletes recipes by id', () => {

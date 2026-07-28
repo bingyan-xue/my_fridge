@@ -22,6 +22,50 @@ describe('appStorage', () => {
     expect(data.recipes.length).toBeGreaterThanOrEqual(15);
   });
 
+  it('refreshes persisted built-in recipes and sample ingredient names to English', () => {
+    const data = createSampleAppData();
+    const oldData = {
+      ...data,
+      ingredients: data.ingredients.map((ingredient) =>
+        ingredient.id === 'ing-tomato'
+          ? { ...ingredient, name: '番茄', canonicalName: '西红柿', quantity: 3 }
+          : ingredient,
+      ),
+      recipes: [
+        ...data.recipes.map((recipe) =>
+          recipe.id === 'recipe-tomato-egg'
+            ? {
+                ...recipe,
+                name: '西红柿炒蛋',
+                ingredients: recipe.ingredients.map((ingredient) =>
+                  ingredient.canonicalName === 'Tomato'
+                    ? { ...ingredient, name: '西红柿', canonicalName: '西红柿' }
+                    : ingredient,
+                ),
+              }
+            : recipe,
+        ),
+        {
+          ...data.recipes[0],
+          id: 'user-recipe',
+          name: 'My Recipe',
+          source: 'userCreated' as const,
+        },
+      ],
+    };
+    localStorage.setItem(APP_DATA_KEY, JSON.stringify(oldData));
+
+    const loaded = loadAppData();
+
+    expect(loaded.ingredients.find((ingredient) => ingredient.id === 'ing-tomato')).toMatchObject({
+      name: 'Tomato',
+      canonicalName: 'Tomato',
+      quantity: 3,
+    });
+    expect(loaded.recipes.find((recipe) => recipe.id === 'recipe-tomato-egg')?.name).toBe('Tomato Eggs');
+    expect(loaded.recipes.find((recipe) => recipe.id === 'user-recipe')?.name).toBe('My Recipe');
+  });
+
   it('saves and loads app data', () => {
     const data = createSampleAppData();
     const changed = { ...data, ingredients: data.ingredients.slice(0, 1) };
