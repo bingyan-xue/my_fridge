@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { createUserRecipe } from '../src/domain/recipes';
 import { createSampleAppData } from '../src/domain/sampleData';
 import {
   APP_DATA_KEY,
@@ -73,6 +74,31 @@ describe('appStorage', () => {
     saveAppData(changed);
 
     expect(loadAppData().ingredients).toHaveLength(1);
+  });
+
+  it('keeps a newly created user recipe at the top through save and reload', () => {
+    const data = createSampleAppData();
+    const recipe = createUserRecipe(
+      {
+        name: 'Test Rice',
+        recipeType: 'staple',
+        mealTypes: ['lunch', 'dinner'],
+        servings: 1,
+        ingredients: [{ name: 'Rice', quantity: 100, unit: 'g', required: true }],
+        nutritionTags: ['carb'],
+      },
+      '2026-08-12T10:00:00.000Z',
+    );
+
+    saveAppData({ ...data, recipes: [recipe, ...data.recipes] });
+
+    const loaded = loadAppData();
+
+    expect(loaded.recipes[0]).toMatchObject({
+      id: recipe.id,
+      name: 'Test Rice',
+      source: 'userCreated',
+    });
   });
 
   it('does not restore deleted built-in recipes on normal reload', () => {

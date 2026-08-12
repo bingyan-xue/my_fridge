@@ -17,6 +17,7 @@ export const translations = {
     common: {
       delete: 'Delete',
       edit: 'Edit',
+      confirm: 'Confirm',
       cancel: 'Cancel',
       quantity: 'Quantity',
       importFailed: 'Import failed',
@@ -92,6 +93,7 @@ export const translations = {
       importData: 'Import data',
       resetSampleData: 'Reset sample data',
       importOverwriteConfirm: 'Importing will overwrite your current local data. Continue?',
+      resetSampleDataConfirm: 'Resetting sample data will erase all current local data. Continue?',
     },
     meal: {
       breakfast: 'Breakfast',
@@ -191,6 +193,7 @@ export const translations = {
     common: {
       delete: '删除',
       edit: '编辑',
+      confirm: '确认',
       cancel: '取消',
       quantity: '数量',
       importFailed: '导入失败',
@@ -266,6 +269,7 @@ export const translations = {
       importData: '导入数据',
       resetSampleData: '恢复示例数据',
       importOverwriteConfirm: '导入会覆盖当前本地数据。是否继续？',
+      resetSampleDataConfirm: '恢复示例数据会清除当前所有本地数据。是否继续？',
     },
     meal: {
       breakfast: '早餐',

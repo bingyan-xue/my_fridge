@@ -365,6 +365,39 @@ button {
   gap: 10px;
 }
 
+.modalBackdrop {
+  position: fixed;
+  z-index: 10;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(40, 53, 44, 0.28);
+}
+
+.confirmDialog {
+  display: grid;
+  width: min(100%, 420px);
+  gap: 12px;
+  border: 1px solid #d9dfd5;
+  border-radius: 8px;
+  background: #fffdfa;
+  padding: 16px;
+  box-shadow: 0 18px 50px rgba(40, 53, 44, 0.18);
+}
+
+.confirmDialog h2 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.dialogActions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+}
+
 .fileButton {
   position: relative;
   display: inline-flex;

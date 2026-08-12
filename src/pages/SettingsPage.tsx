@@ -1,4 +1,5 @@
 import type { ChangeEvent } from 'react';
+import { useState } from 'react';
 import { Download, RotateCcw, Upload } from 'lucide-react';
 import type { AppData } from '../domain/types';
 import type { Language, Translation } from '../i18n/translations';
@@ -12,9 +13,26 @@ type SettingsPageProps = {
   t: Translation;
 };
 
+function readFileText(file: File): Promise<string> {
+  if (typeof file.text === 'function') {
+    return file.text();
+  }
+
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result ?? ''));
+    reader.onerror = () => reject(reader.error ?? new Error('Failed to read file.'));
+    reader.readAsText(file);
+  });
+}
+
 export function SettingsPage({ appData, language, onChange, onLanguageChange, t }: SettingsPageProps) {
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
+  const [pendingImportText, setPendingImportText] = useState<string | null>(null);
+
   function handleReset() {
     onChange(resetToSampleData());
+    setIsResetConfirmOpen(false);
   }
 
   function handleExport() {
@@ -29,22 +47,32 @@ export function SettingsPage({ appData, language, onChange, onLanguageChange, t 
   }
 
   async function handleImport(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.currentTarget.files?.[0];
+    const input = event.currentTarget;
+    const file = input.files?.[0];
     if (!file) {
-      return;
-    }
-    if (!window.confirm(t.settings.importOverwriteConfirm)) {
-      event.currentTarget.value = '';
       return;
     }
 
     try {
-      const text = await file.text();
-      onChange(parseImportedData(text));
+      const text = await readFileText(file);
+      setPendingImportText(text);
     } catch (error) {
       window.alert(error instanceof Error ? error.message : t.common.importFailed);
     } finally {
-      event.currentTarget.value = '';
+      input.value = '';
+    }
+  }
+
+  function handleConfirmImport() {
+    if (pendingImportText === null) {
+      return;
+    }
+
+    try {
+      onChange(parseImportedData(pendingImportText));
+      setPendingImportText(null);
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : t.common.importFailed);
     }
   }
 
@@ -72,11 +100,45 @@ export function SettingsPage({ appData, language, onChange, onLanguageChange, t 
           {t.settings.importData}
           <input accept="application/json" type="file" onChange={handleImport} />
         </label>
-        <button className="secondaryButton" type="button" onClick={handleReset}>
+        <button className="secondaryButton" type="button" onClick={() => setIsResetConfirmOpen(true)}>
           <RotateCcw aria-hidden="true" size={18} />
           {t.settings.resetSampleData}
         </button>
       </div>
+
+      {isResetConfirmOpen && (
+        <div className="modalBackdrop" role="presentation">
+          <section className="confirmDialog" role="dialog" aria-modal="true" aria-labelledby="reset-confirm-title">
+            <h2 id="reset-confirm-title">{t.settings.resetSampleData}</h2>
+            <p>{t.settings.resetSampleDataConfirm}</p>
+            <div className="dialogActions">
+              <button className="secondaryButton" type="button" onClick={() => setIsResetConfirmOpen(false)}>
+                {t.common.cancel}
+              </button>
+              <button className="primaryButton" type="button" onClick={handleReset}>
+                {t.common.confirm}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {pendingImportText !== null && (
+        <div className="modalBackdrop" role="presentation">
+          <section className="confirmDialog" role="dialog" aria-modal="true" aria-labelledby="import-confirm-title">
+            <h2 id="import-confirm-title">{t.settings.importData}</h2>
+            <p>{t.settings.importOverwriteConfirm}</p>
+            <div className="dialogActions">
+              <button className="secondaryButton" type="button" onClick={() => setPendingImportText(null)}>
+                {t.common.cancel}
+              </button>
+              <button className="primaryButton" type="button" onClick={handleConfirmImport}>
+                {t.common.confirm}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
     </section>
   );
 }

@@ -72,7 +72,7 @@ function refreshBuiltInData(data: AppData): AppData {
       const current = sampleIngredientNames.get(ingredient.id);
       return current ? { ...ingredient, ...current } : ingredient;
     }),
-    recipes: [...preservedBuiltInRecipes, ...structuredClone(missingBuiltInRecipes), ...userRecipes],
+    recipes: [...userRecipes, ...preservedBuiltInRecipes, ...structuredClone(missingBuiltInRecipes)],
   };
 }
 
