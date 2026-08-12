@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { RecipeForm } from '../components/RecipeForm';
 import { RecipeList } from '../components/RecipeList';
-import { createUserRecipe, deleteRecipe, upsertRecipe } from '../domain/recipes';
+import { createUserRecipe, deleteRecipe, updateRecipeFromInput, upsertRecipe } from '../domain/recipes';
 import type { AppData } from '../domain/types';
 import type { Translation } from '../i18n/translations';
 
@@ -11,8 +12,29 @@ type RecipesPageProps = {
 };
 
 export function RecipesPage({ appData, onChange, t }: RecipesPageProps) {
+  const [editingRecipeId, setEditingRecipeId] = useState<string | undefined>();
+
   function updateRecipes(recipes: AppData['recipes']) {
     onChange({ ...appData, recipes });
+  }
+
+  function deleteRecipeAndRememberBuiltIn(id: string) {
+    const recipe = appData.recipes.find((item) => item.id === id);
+    const nextData: AppData = {
+      ...appData,
+      recipes: deleteRecipe(appData.recipes, id),
+      settings:
+        recipe?.source === 'builtIn'
+          ? {
+              ...appData.settings,
+              deletedBuiltInRecipeIds: Array.from(new Set([...(appData.settings.deletedBuiltInRecipeIds ?? []), id])),
+            }
+          : appData.settings,
+    };
+    if (editingRecipeId === id) {
+      setEditingRecipeId(undefined);
+    }
+    onChange(nextData);
   }
 
   return (
@@ -22,18 +44,21 @@ export function RecipesPage({ appData, onChange, t }: RecipesPageProps) {
       <RecipeForm
         t={t}
         onSubmit={(input) => {
-          updateRecipes(upsertRecipe(appData.recipes, createUserRecipe(input, new Date().toISOString())));
+          const now = new Date().toISOString();
+          updateRecipes(upsertRecipe(appData.recipes, createUserRecipe(input, now)));
         }}
       />
       <RecipeList
+        editingRecipeId={editingRecipeId}
         recipes={appData.recipes}
         t={t}
-        onDelete={(id) => {
-          const recipe = appData.recipes.find((item) => item.id === id);
-          if (recipe?.source === 'userCreated') {
-            updateRecipes(deleteRecipe(appData.recipes, id));
-          }
+        onCancelEdit={() => setEditingRecipeId(undefined)}
+        onEdit={(id) => setEditingRecipeId(id)}
+        onSubmitEdit={(recipe, input) => {
+          updateRecipes(upsertRecipe(appData.recipes, updateRecipeFromInput(recipe, input, new Date().toISOString())));
+          setEditingRecipeId(undefined);
         }}
+        onDelete={deleteRecipeAndRememberBuiltIn}
       />
     </section>
   );

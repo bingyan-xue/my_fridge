@@ -51,6 +51,25 @@ export function adjustIngredientQuantity(
   return items.map((item) => (item.id === id ? { ...item, quantity, updatedAt: changedAt } : item));
 }
 
+export function updateIngredientExpiryDate(
+  items: IngredientItem[],
+  id: string,
+  expiryDate: string,
+  changedAt: string,
+): IngredientItem[] {
+  return items.map((item) =>
+    item.id === id
+      ? {
+          ...item,
+          expiryDate: expiryDate || undefined,
+          estimatedExpiryDate: undefined,
+          expirySource: expiryDate ? 'user' : 'default',
+          updatedAt: changedAt,
+        }
+      : item,
+  );
+}
+
 export function completePlannedMealItem(data: AppData, mealPlanId: string, itemId: string, now: string): AppData {
   const plan = data.mealPlans.find((candidate) => candidate.id === mealPlanId);
   const meal = plan?.meals.find((candidate) => candidate.items.some((item) => item.id === itemId));

@@ -1,5 +1,6 @@
 import { Check, RefreshCw, RotateCcw } from 'lucide-react';
 import type { Meal } from '../domain/types';
+import { formatPlannerMessage, formatQuantity, joinPlannerMessages } from '../i18n/formatters';
 import type { Translation } from '../i18n/translations';
 
 type MealCardProps = {
@@ -39,19 +40,21 @@ export function MealCard({ mealType, meal, failureReason, onGenerate, onConfirm,
               <div>
                 <h3>{item.recipeSnapshot.name}</h3>
                 <p>
-                  {item.plannedConsumption.map((consumption) => `${consumption.ingredientName} ${consumption.quantity}${consumption.unit}`).join('、')}
+                  {item.plannedConsumption
+                    .map((consumption) => `${consumption.ingredientName} ${formatQuantity(consumption.quantity, consumption.unit, t)}`)
+                    .join(' / ')}
                 </p>
               </div>
 
               {item.reasons.length > 0 && (
                 <ul className="reasonList">
                   {item.reasons.slice(0, 2).map((reason) => (
-                    <li key={reason}>{reason}</li>
+                    <li key={reason}>{formatPlannerMessage(reason, t)}</li>
                   ))}
                 </ul>
               )}
 
-              {item.warnings.length > 0 && <p className="warningText">{item.warnings.slice(0, 2).join('；')}</p>}
+              {item.warnings.length > 0 && <p className="warningText">{joinPlannerMessages(item.warnings.slice(0, 2), t)}</p>}
 
               {item.status === 'completed' ? (
                 <button className="secondaryButton" type="button" onClick={() => onCancel(item.id)}>

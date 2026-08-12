@@ -52,7 +52,19 @@ function refreshBuiltInData(data: AppData): AppData {
     sampleIngredients.map((ingredient) => [ingredient.id, { name: ingredient.name, canonicalName: ingredient.canonicalName }]),
   );
   const builtInRecipeIds = new Set(builtInRecipes.map((recipe) => recipe.id));
+  const builtInRecipesById = new Map(builtInRecipes.map((recipe) => [recipe.id, recipe]));
+  const deletedBuiltInRecipeIds = new Set(data.settings.deletedBuiltInRecipeIds ?? []);
+  const existingRecipeIds = new Set(data.recipes.map((recipe) => recipe.id));
   const userRecipes = data.recipes.filter((recipe) => recipe.source !== 'builtIn' && !builtInRecipeIds.has(recipe.id));
+  const preservedBuiltInRecipes = data.recipes
+    .filter((recipe) => recipe.source === 'builtIn' && !deletedBuiltInRecipeIds.has(recipe.id))
+    .map((recipe) => {
+      const latestBuiltInRecipe = builtInRecipesById.get(recipe.id);
+      return latestBuiltInRecipe && recipe.updatedAt === latestBuiltInRecipe.updatedAt ? structuredClone(latestBuiltInRecipe) : recipe;
+    });
+  const missingBuiltInRecipes = builtInRecipes.filter(
+    (recipe) => !existingRecipeIds.has(recipe.id) && !deletedBuiltInRecipeIds.has(recipe.id),
+  );
 
   return {
     ...data,
@@ -60,7 +72,7 @@ function refreshBuiltInData(data: AppData): AppData {
       const current = sampleIngredientNames.get(ingredient.id);
       return current ? { ...ingredient, ...current } : ingredient;
     }),
-    recipes: [...structuredClone(builtInRecipes), ...userRecipes],
+    recipes: [...preservedBuiltInRecipes, ...structuredClone(missingBuiltInRecipes), ...userRecipes],
   };
 }
 

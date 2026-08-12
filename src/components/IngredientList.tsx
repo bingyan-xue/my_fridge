@@ -7,11 +7,12 @@ type IngredientListProps = {
   ingredients: IngredientItem[];
   today: string;
   onQuantityChange: (id: string, quantity: number) => void;
+  onExpiryDateChange: (id: string, expiryDate: string) => void;
   onDelete: (id: string) => void;
   t: Translation;
 };
 
-export function IngredientList({ ingredients, today, onQuantityChange, onDelete, t }: IngredientListProps) {
+export function IngredientList({ ingredients, today, onQuantityChange, onExpiryDateChange, onDelete, t }: IngredientListProps) {
   if (ingredients.length === 0) {
     return <p className="emptyText">{t.inventory.list.empty}</p>;
   }
@@ -44,11 +45,16 @@ export function IngredientList({ ingredients, today, onQuantityChange, onDelete,
                   onChange={(event) => onQuantityChange(item.id, Number(event.target.value))}
                 />
               </label>
-              <span className="unitText">{item.unit}</span>
+              <span className="unitText">{t.labels.unit[item.unit]}</span>
               <button className="iconButton" type="button" aria-label={t.inventory.list.deleteLabel(item.name)} onClick={() => onDelete(item.id)}>
                 <Trash2 aria-hidden="true" size={18} />
               </button>
             </div>
+
+            <label className="fieldGroup">
+              <span>{t.inventory.list.expiryDateLabel(item.name)}</span>
+              <input type="date" value={expiryDate ?? ''} onChange={(event) => onExpiryDateChange(item.id, event.target.value)} />
+            </label>
           </article>
         );
       })}

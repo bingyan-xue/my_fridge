@@ -102,6 +102,7 @@ export type InventoryTransaction = {
 
 export type UserSettings = {
   updatedAt: string;
+  deletedBuiltInRecipeIds?: string[];
 };
 
 export type AppData = {

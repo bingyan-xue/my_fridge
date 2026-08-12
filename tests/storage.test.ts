@@ -75,6 +75,49 @@ describe('appStorage', () => {
     expect(loadAppData().ingredients).toHaveLength(1);
   });
 
+  it('does not restore deleted built-in recipes on normal reload', () => {
+    const data = createSampleAppData();
+    const changed = {
+      ...data,
+      recipes: data.recipes.filter((recipe) => recipe.id !== 'recipe-tomato-egg'),
+      settings: {
+        ...data.settings,
+        deletedBuiltInRecipeIds: ['recipe-tomato-egg'],
+      },
+    };
+    localStorage.setItem(APP_DATA_KEY, JSON.stringify(changed));
+
+    const loaded = loadAppData();
+
+    expect(loaded.recipes.some((recipe) => recipe.id === 'recipe-tomato-egg')).toBe(false);
+    expect(loaded.settings.deletedBuiltInRecipeIds).toEqual(['recipe-tomato-egg']);
+  });
+
+  it('preserves edited built-in recipes on normal reload', () => {
+    const data = createSampleAppData();
+    const changed = {
+      ...data,
+      recipes: data.recipes.map((recipe) =>
+        recipe.id === 'recipe-tomato-egg'
+          ? {
+              ...recipe,
+              ingredients: recipe.ingredients.map((ingredient) =>
+                ingredient.canonicalName === 'Egg' ? { ...ingredient, quantity: 3 } : ingredient,
+              ),
+              updatedAt: '2026-08-12T10:00:00.000Z',
+            }
+          : recipe,
+      ),
+    };
+    localStorage.setItem(APP_DATA_KEY, JSON.stringify(changed));
+
+    const loaded = loadAppData();
+    const tomatoEggs = loaded.recipes.find((recipe) => recipe.id === 'recipe-tomato-egg');
+
+    expect(tomatoEggs?.ingredients.find((ingredient) => ingredient.canonicalName === 'Egg')?.quantity).toBe(3);
+    expect(tomatoEggs?.updatedAt).toBe('2026-08-12T10:00:00.000Z');
+  });
+
   it('exports schemaVersion and exportedAt', () => {
     const json = serializeForExport(createSampleAppData(), '2026-07-27T12:00:00.000Z');
     const parsed = JSON.parse(json);

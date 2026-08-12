@@ -5,6 +5,7 @@ import {
   createIngredientDraft,
   deleteIngredient,
   undoCompletedMealItem,
+  updateIngredientExpiryDate,
   upsertIngredient,
 } from '../src/domain/inventory';
 import type { AppData } from '../src/domain/types';
@@ -78,6 +79,30 @@ describe('inventory helpers', () => {
     );
 
     expect(adjustIngredientQuantity([item], item.id, 10, '2026-07-27T10:00:00.000Z')[0].quantity).toBe(10);
+  });
+
+  it('lets users override an ingredient expiry date after checking freshness', () => {
+    const item = createIngredientDraft(
+      {
+        name: '鸡蛋',
+        category: 'eggs',
+        quantity: 6,
+        unit: '个',
+        storageLocation: 'fridge',
+        expiryDate: '2026-08-12',
+        nutritionTags: ['protein'],
+      },
+      '2026-08-01',
+    );
+
+    const updated = updateIngredientExpiryDate([item], item.id, '2026-08-15', '2026-08-12T10:00:00.000Z');
+
+    expect(updated[0]).toMatchObject({
+      expiryDate: '2026-08-15',
+      expirySource: 'user',
+      estimatedExpiryDate: undefined,
+      updatedAt: '2026-08-12T10:00:00.000Z',
+    });
   });
 });
 

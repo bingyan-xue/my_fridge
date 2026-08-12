@@ -81,6 +81,14 @@ button {
   background: rgba(255, 253, 250, 0.86);
 }
 
+.listItem > .formBlock {
+  padding: 12px 0 0;
+  border-width: 1px 0 0;
+  border-color: #d9dfd5;
+  border-radius: 0;
+  background: transparent;
+}
+
 .formGrid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -93,6 +101,7 @@ button {
 }
 
 .fieldGroup label,
+.fieldGroup > span,
 .tagFieldset legend,
 .quantityRow label span {
   color: #4b5d51;
@@ -133,7 +142,8 @@ button {
 }
 
 .primaryButton,
-.iconButton {
+.iconButton,
+.secondaryIconButton {
   display: inline-flex;
   min-height: 44px;
   align-items: center;
@@ -233,7 +243,20 @@ button {
   color: #9b2e20;
 }
 
-.iconButton:disabled {
+.secondaryIconButton {
+  border: 1px solid #cbd6c9;
+  background: #eef4eb;
+  color: #265d3d;
+}
+
+.itemActions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 8px;
+}
+
+.iconButton:disabled,
+.secondaryIconButton:disabled {
   cursor: not-allowed;
   opacity: 0.42;
 }

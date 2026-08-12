@@ -28,6 +28,22 @@ export function createUserRecipe(input: RecipeFormInput, now: string): Recipe {
   };
 }
 
+export function updateRecipeFromInput(recipe: Recipe, input: RecipeFormInput, now: string): Recipe {
+  return {
+    ...recipe,
+    name: input.name.trim(),
+    recipeType: input.recipeType,
+    mealTypes: input.mealTypes,
+    servings: input.servings,
+    ingredients: input.ingredients.map((ingredient) => ({
+      ...ingredient,
+      canonicalName: normalizeIngredientName(ingredient.name),
+    })),
+    nutritionTags: input.nutritionTags,
+    updatedAt: now,
+  };
+}
+
 export function upsertRecipe(recipes: Recipe[], recipe: Recipe): Recipe[] {
   const exists = recipes.some((candidate) => candidate.id === recipe.id);
   return exists ? recipes.map((candidate) => (candidate.id === recipe.id ? recipe : candidate)) : [recipe, ...recipes];

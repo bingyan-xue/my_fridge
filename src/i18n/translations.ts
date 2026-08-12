@@ -16,8 +16,14 @@ export const translations = {
     },
     common: {
       delete: 'Delete',
+      edit: 'Edit',
+      cancel: 'Cancel',
       quantity: 'Quantity',
       importFailed: 'Import failed',
+    },
+    format: {
+      quantityUnitSeparator: ' ',
+      messageSeparator: '; ',
     },
     today: {
       title: 'Today',
@@ -41,6 +47,7 @@ export const translations = {
         empty: 'No ingredients yet.',
         expiresOn: (date: string) => `Expires on ${date}`,
         expiryMissing: 'No expiry date',
+        expiryDateLabel: (name: string) => `Expiry date for ${name}`,
         deleteLabel: (name: string) => `Delete ${name}`,
       },
     },
@@ -63,11 +70,14 @@ export const translations = {
         addIngredientRow: 'Add ingredient row',
         nutritionTags: 'Nutrition tags',
         submit: 'Save recipe',
+        update: 'Update recipe',
+        cancelEdit: 'Cancel edit',
       },
       list: {
         empty: 'No recipes yet.',
         builtIn: 'Built-in',
         userCreated: 'Custom',
+        editLabel: (name: string) => `Edit ${name}`,
         deleteLabel: (name: string) => `Delete ${name}`,
       },
     },
@@ -162,6 +172,13 @@ export const translations = {
       餐次不匹配: 'No recipes for this meal',
       菜谱不足: 'No recipes yet',
     },
+    plannerMessage: {
+      addsProtein: 'Adds protein',
+      basicMeal: 'Basic meal',
+      lowProtein: 'Low on protein',
+      lowFruitOrVegetables: 'Low on fruit or vegetables',
+      usesExpiringSoon: (name: string) => `Uses expiring-soon ${name}`,
+    },
   },
   'zh-CN': {
     nav: {
@@ -173,8 +190,14 @@ export const translations = {
     },
     common: {
       delete: '删除',
+      edit: '编辑',
+      cancel: '取消',
       quantity: '数量',
       importFailed: '导入失败',
+    },
+    format: {
+      quantityUnitSeparator: '',
+      messageSeparator: '；',
     },
     today: {
       title: '今日',
@@ -198,6 +221,7 @@ export const translations = {
         empty: '还没有库存食材。',
         expiresOn: (date: string) => `${date} 过期`,
         expiryMissing: '未设置过期日',
+        expiryDateLabel: (name: string) => `${name}的过期日期`,
         deleteLabel: (name: string) => `删除${name}`,
       },
     },
@@ -220,11 +244,14 @@ export const translations = {
         addIngredientRow: '添加食材行',
         nutritionTags: '营养标签',
         submit: '保存菜谱',
+        update: '更新菜谱',
+        cancelEdit: '取消编辑',
       },
       list: {
         empty: '还没有菜谱。',
         builtIn: '内置',
         userCreated: '自建',
+        editLabel: (name: string) => `编辑${name}`,
         deleteLabel: (name: string) => `删除${name}`,
       },
     },
@@ -318,6 +345,13 @@ export const translations = {
       单位需要确认: '单位需要确认',
       餐次不匹配: '餐次不匹配',
       菜谱不足: '菜谱不足',
+    },
+    plannerMessage: {
+      addsProtein: '补了蛋白质',
+      basicMeal: '生成基础餐',
+      lowProtein: '这餐蛋白质偏少',
+      lowFruitOrVegetables: '这餐蔬果偏少',
+      usesExpiringSoon: (name: string) => `用了快过期的${name}`,
     },
   },
 } as const;

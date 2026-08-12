@@ -1,6 +1,6 @@
 import { IngredientForm } from '../components/IngredientForm';
 import { IngredientList } from '../components/IngredientList';
-import { adjustIngredientQuantity, createIngredientDraft, deleteIngredient, upsertIngredient } from '../domain/inventory';
+import { adjustIngredientQuantity, createIngredientDraft, deleteIngredient, updateIngredientExpiryDate, upsertIngredient } from '../domain/inventory';
 import type { AppData } from '../domain/types';
 import type { Translation } from '../i18n/translations';
 
@@ -39,6 +39,9 @@ export function InventoryPage({ appData, onChange, t }: InventoryPageProps) {
         t={t}
         today={today}
         onDelete={(id) => updateIngredients(deleteIngredient(appData.ingredients, id))}
+        onExpiryDateChange={(id, expiryDate) =>
+          updateIngredients(updateIngredientExpiryDate(appData.ingredients, id, expiryDate, new Date().toISOString()))
+        }
         onQuantityChange={(id, quantity) => updateIngredients(adjustIngredientQuantity(appData.ingredients, id, quantity, new Date().toISOString()))}
       />
     </section>

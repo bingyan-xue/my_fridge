@@ -1,11 +1,13 @@
 import { Plus, X } from 'lucide-react';
 import type { FormEvent } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { RecipeFormInput } from '../domain/recipes';
 import type { MealType, NutritionTag, Recipe, Unit } from '../domain/types';
 import type { Translation } from '../i18n/translations';
 
 type RecipeFormProps = {
+  editingRecipe?: Recipe;
+  onCancelEdit?: () => void;
   onSubmit: (input: RecipeFormInput) => void;
   t: Translation;
 };
@@ -25,8 +27,29 @@ const defaultInput: RecipeFormInput = {
   nutritionTags: ['protein'],
 };
 
-export function RecipeForm({ onSubmit, t }: RecipeFormProps) {
+function recipeToInput(recipe: Recipe): RecipeFormInput {
+  return {
+    name: recipe.name,
+    recipeType: recipe.recipeType,
+    mealTypes: recipe.mealTypes,
+    servings: recipe.servings,
+    ingredients: recipe.ingredients.map((ingredient) => ({
+      name: ingredient.name,
+      quantity: ingredient.quantity,
+      unit: ingredient.unit,
+      required: ingredient.required,
+    })),
+    nutritionTags: recipe.nutritionTags,
+  };
+}
+
+export function RecipeForm({ editingRecipe, onCancelEdit, onSubmit, t }: RecipeFormProps) {
   const [input, setInput] = useState<RecipeFormInput>(defaultInput);
+  const isEditing = Boolean(editingRecipe);
+
+  useEffect(() => {
+    setInput(editingRecipe ? recipeToInput(editingRecipe) : defaultInput);
+  }, [editingRecipe]);
 
   function update<K extends keyof RecipeFormInput>(key: K, value: RecipeFormInput[K]) {
     setInput((current) => ({ ...current, [key]: value }));
@@ -183,8 +206,14 @@ export function RecipeForm({ onSubmit, t }: RecipeFormProps) {
 
       <button className="primaryButton" type="submit">
         <Plus aria-hidden="true" size={18} />
-        {t.recipes.form.submit}
+        {isEditing ? t.recipes.form.update : t.recipes.form.submit}
       </button>
+      {isEditing && (
+        <button className="secondaryButton" type="button" onClick={onCancelEdit}>
+          <X aria-hidden="true" size={16} />
+          {t.recipes.form.cancelEdit}
+        </button>
+      )}
     </form>
   );
 }
