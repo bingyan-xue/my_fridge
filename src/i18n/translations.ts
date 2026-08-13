@@ -236,7 +236,7 @@ export const translations = {
       messageSeparator: '；',
     },
     today: {
-      title: '今日',
+      title: '今日食谱',
       description: '随机生成早餐、午餐或晚餐。',
       summary: {
         mealCount: (count: number) => `${count} 餐`,
@@ -339,7 +339,7 @@ export const translations = {
       itemCount: (count: number) => `${count} 个餐项`,
       notGenerated: '还没有生成',
       generate: '随机',
-      empty: '可以先随机生成这一餐。',
+      empty: '随机生成一餐。',
       confirm: '确认',
       cancel: '取消',
       removeRecipeLabel: (name: string) => `删除${name}`,

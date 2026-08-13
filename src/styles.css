@@ -106,6 +106,7 @@ button:focus-visible {
 
 .settingsTopButton {
   position: absolute;
+  z-index: 2;
   top: 22px;
   right: 18px;
   display: inline-flex;
@@ -134,47 +135,11 @@ button:focus-visible {
   gap: 16px;
 }
 
-.todayHeaderPanel {
-  position: relative;
-  display: grid;
-  gap: 12px;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background:
-    linear-gradient(90deg, rgba(248, 251, 252, 0.98), rgba(233, 245, 247, 0.82)),
-    var(--surface);
-  padding: 15px;
-  box-shadow: 0 16px 38px rgba(38, 50, 56, 0.06);
-}
-
-.todayHeaderPanel::after {
-  position: absolute;
-  right: 14px;
-  bottom: -34px;
-  width: 108px;
-  height: 108px;
-  border: 1px solid rgba(118, 175, 192, 0.22);
-  border-radius: 8px;
-  content: "";
-}
-
-.todayHeaderPanel h1,
-.todayHeaderPanel p {
-  position: relative;
-  z-index: 1;
-}
-
-.todayHeaderPanel h1 {
-  margin-bottom: 3px;
-}
-
 .todaySummaryRail {
-  position: relative;
-  z-index: 1;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  margin-top: -4px;
 }
 
 .todaySummaryRail span {
@@ -942,6 +907,26 @@ button:focus-visible {
   background: rgba(233, 245, 247, 0.9);
   color: var(--deep-teal);
   box-shadow: inset 0 -3px 0 var(--deep-teal);
+}
+
+.navButtonToday {
+  background: rgba(28, 107, 120, 0.12);
+  color: var(--deep-teal);
+}
+
+.navButtonToday:hover {
+  background: rgba(28, 107, 120, 0.18);
+  color: #0f5060;
+}
+
+.navButtonToday.navButtonActive {
+  background: var(--deep-teal);
+  color: #f8fbfc;
+  box-shadow: inset 0 -3px 0 rgba(255, 255, 255, 0.32);
+}
+
+.navButtonToday.navButtonActive:hover {
+  background: #0f5060;
 }
 
 @media (max-width: 420px) {

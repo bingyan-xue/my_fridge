@@ -1,4 +1,4 @@
-import { Check, Plus, RefreshCw, Refrigerator, RotateCcw, Sparkles, Trash2 } from 'lucide-react';
+import { Check, Moon, Plus, RefreshCw, RotateCcw, Sparkles, Sun, Sunrise, Trash2 } from 'lucide-react';
 import type { Meal } from '../domain/types';
 import { formatPlannerMessage, formatQuantity, joinPlannerMessages } from '../i18n/formatters';
 import type { Translation } from '../i18n/translations';
@@ -16,6 +16,12 @@ type MealCardProps = {
   t: Translation;
 };
 
+const mealIcons = {
+  breakfast: Sunrise,
+  lunch: Sun,
+  dinner: Moon,
+};
+
 export function MealCard({
   mealType,
   meal,
@@ -29,13 +35,14 @@ export function MealCard({
   t,
 }: MealCardProps) {
   const items = meal?.items ?? [];
+  const MealIcon = mealIcons[mealType];
 
   return (
     <article className={`mealCard mealCard-${mealType}`}>
       <div className="itemHeader mealCardHeader">
         <div className="mealCardTitleGroup">
           <span className="lineGlyph mealGlyph" aria-hidden="true">
-            <Refrigerator size={22} />
+            <MealIcon size={22} />
           </span>
           <div>
             <h2>{t.meal[mealType]}</h2>

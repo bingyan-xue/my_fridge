@@ -155,16 +155,12 @@ export function TodayPage({ appData, onChange, t }: TodayPageProps) {
 
   return (
     <section className="stackPage">
-      <div className="todayHeaderPanel">
-        <div>
-          <h1>{t.today.title}</h1>
-          <p>{today}</p>
-        </div>
-        <div className="todaySummaryRail" aria-label={t.today.description}>
-          <span>{t.today.summary.mealCount(mealTypes.length)}</span>
-          <span>{t.today.summary.plannedCount(plannedItemCount)}</span>
-          <span>{t.today.summary.doneCount(completedItemCount)}</span>
-        </div>
+      <h1>{t.today.title}</h1>
+      <p>{today}</p>
+      <div className="todaySummaryRail" aria-label={t.today.description}>
+        <span>{t.today.summary.mealCount(mealTypes.length)}</span>
+        <span>{t.today.summary.plannedCount(plannedItemCount)}</span>
+        <span>{t.today.summary.doneCount(completedItemCount)}</span>
       </div>
       <div className="mealGrid">
         {mealTypes.map((mealType) => (

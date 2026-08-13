@@ -36,6 +36,27 @@ describe('App shell', () => {
     expect(screen.getByRole('button', { name: 'Settings' })).toBeInTheDocument();
   });
 
+  it('uses a distinctive active treatment for the Today navigation item', () => {
+    render(<App />);
+
+    const nav = screen.getByRole('navigation', { name: 'Main navigation' });
+    const todayButton = within(nav).getByRole('button', { name: /Today/ });
+    const inventoryButton = within(nav).getByRole('button', { name: /Inventory/ });
+    const recipesButton = within(nav).getByRole('button', { name: /Recipes/ });
+
+    expect(todayButton).toHaveClass('navButtonToday', 'navButtonActive');
+    expect(inventoryButton).not.toHaveClass('navButtonToday');
+    expect(recipesButton).not.toHaveClass('navButtonToday');
+  });
+
+  it('uses distinct line icons for breakfast, lunch, and dinner', () => {
+    const { container } = render(<App />);
+
+    expect(container.querySelector('.mealCard-breakfast .lucide-sunrise')).toBeInTheDocument();
+    expect(container.querySelector('.mealCard-lunch .lucide-sun')).toBeInTheDocument();
+    expect(container.querySelector('.mealCard-dinner .lucide-moon')).toBeInTheDocument();
+  });
+
   it('opens settings from the top action', () => {
     render(<App />);
 

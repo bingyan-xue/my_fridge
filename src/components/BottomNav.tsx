@@ -21,10 +21,18 @@ export function BottomNav({ activePage, onChange, t }: BottomNavProps) {
     <nav className="bottomNav" aria-label={t.nav.ariaLabel}>
       {navItems.map((item) => {
         const Icon = item.icon;
+        const classes = ['navButton'];
+        if (item.id === 'today') {
+          classes.push('navButtonToday');
+        }
+        if (item.id === activePage) {
+          classes.push('navButtonActive');
+        }
+
         return (
           <button
             key={item.id}
-            className={item.id === activePage ? 'navButton navButtonActive' : 'navButton'}
+            className={classes.join(' ')}
             type="button"
             onClick={() => onChange(item.id)}
           >
