@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Plus, X } from 'lucide-react';
 import { RecipeForm } from '../components/RecipeForm';
 import { RecipeList } from '../components/RecipeList';
 import { createUserRecipe, deleteRecipe, updateRecipeFromInput, upsertRecipe } from '../domain/recipes';
@@ -13,6 +14,7 @@ type RecipesPageProps = {
 
 export function RecipesPage({ appData, onChange, t }: RecipesPageProps) {
   const [editingRecipeId, setEditingRecipeId] = useState<string | undefined>();
+  const [isAddFormOpen, setIsAddFormOpen] = useState(false);
 
   function updateRecipes(recipes: AppData['recipes']) {
     onChange({ ...appData, recipes });
@@ -41,13 +43,20 @@ export function RecipesPage({ appData, onChange, t }: RecipesPageProps) {
     <section className="stackPage">
       <h1>{t.recipes.title}</h1>
       <p>{t.recipes.description}</p>
-      <RecipeForm
-        t={t}
-        onSubmit={(input) => {
-          const now = new Date().toISOString();
-          updateRecipes(upsertRecipe(appData.recipes, createUserRecipe(input, now)));
-        }}
-      />
+      <button className="formToggleButton" type="button" aria-expanded={isAddFormOpen} onClick={() => setIsAddFormOpen((current) => !current)}>
+        {isAddFormOpen ? <X aria-hidden="true" size={18} /> : <Plus aria-hidden="true" size={18} />}
+        {isAddFormOpen ? t.common.cancel : t.recipes.addRecipe}
+      </button>
+      {isAddFormOpen && (
+        <RecipeForm
+          t={t}
+          onSubmit={(input) => {
+            const now = new Date().toISOString();
+            updateRecipes(upsertRecipe(appData.recipes, createUserRecipe(input, now)));
+            setIsAddFormOpen(false);
+          }}
+        />
+      )}
       <RecipeList
         editingRecipeId={editingRecipeId}
         recipes={appData.recipes}

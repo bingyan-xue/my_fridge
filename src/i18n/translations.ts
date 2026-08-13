@@ -29,10 +29,37 @@ export const translations = {
     today: {
       title: 'Today',
       description: 'Generate breakfast, lunch, or dinner from what you already have.',
+      summary: {
+        mealCount: (count: number) => `${count} meal${count === 1 ? '' : 's'}`,
+        plannedCount: (count: number) => `${count} planned`,
+        doneCount: (count: number) => `${count} done`,
+      },
+      picker: {
+        title: 'Add recipe',
+        search: 'Search recipes',
+        mealType: 'Meal type',
+        allMealTypes: 'All',
+        close: 'Close picker',
+        addRecipe: (name: string) => `Add ${name}`,
+        noResults: 'No recipes found.',
+        warning: {
+          missingIngredient: 'Missing ingredients',
+          insufficientQuantity: 'Not enough quantity',
+          unitNeedsConfirmation: 'Unit needs review',
+        },
+      },
+      confirmationFailure: {
+        missingIngredient: 'Missing ingredients. Update inventory before confirming.',
+        insufficientQuantity: 'Inventory is not enough. Update inventory before confirming.',
+        unitNeedsConfirmation: 'Unit needs review. Update inventory before confirming.',
+      },
     },
     inventory: {
       title: 'Inventory',
       description: 'Record the ingredients you have at home.',
+      summary: {
+        ariaLabel: 'Inventory freshness summary',
+      },
       form: {
         name: 'Ingredient name',
         namePlaceholder: 'e.g. eggs',
@@ -55,6 +82,7 @@ export const translations = {
     recipes: {
       title: 'Recipes',
       description: 'Manage built-in recipes and your own recipes.',
+      addRecipe: 'Add recipe',
       form: {
         name: 'Recipe name',
         namePlaceholder: 'e.g. tomato eggs',
@@ -105,6 +133,11 @@ export const translations = {
       empty: 'Generate this meal first.',
       confirm: 'Confirm',
       cancel: 'Cancel',
+      removeRecipeLabel: (name: string) => `Remove ${name}`,
+      status: {
+        planned: 'Planned',
+        completed: 'Done',
+      },
     },
     labels: {
       storage: {
@@ -205,10 +238,37 @@ export const translations = {
     today: {
       title: '今日',
       description: '随机生成早餐、午餐或晚餐。',
+      summary: {
+        mealCount: (count: number) => `${count} 餐`,
+        plannedCount: (count: number) => `${count} 待确认`,
+        doneCount: (count: number) => `${count} 已完成`,
+      },
+      picker: {
+        title: '添加菜谱',
+        search: '搜索菜谱',
+        mealType: '餐次',
+        allMealTypes: '全部',
+        close: '关闭选择器',
+        addRecipe: (name: string) => `添加${name}`,
+        noResults: '没有找到菜谱。',
+        warning: {
+          missingIngredient: '缺少食材',
+          insufficientQuantity: '数量不足',
+          unitNeedsConfirmation: '单位需要确认',
+        },
+      },
+      confirmationFailure: {
+        missingIngredient: '缺少食材。请先修改库存，再确认。',
+        insufficientQuantity: '库存不足。请先修改库存，再确认。',
+        unitNeedsConfirmation: '单位需要确认。请先修改库存，再确认。',
+      },
     },
     inventory: {
       title: '库存',
       description: '记录家里已有的食材。',
+      summary: {
+        ariaLabel: '库存新鲜程度摘要',
+      },
       form: {
         name: '食材名称',
         namePlaceholder: '例如 鸡蛋',
@@ -231,6 +291,7 @@ export const translations = {
     recipes: {
       title: '菜谱',
       description: '管理内置菜谱和自建菜谱。',
+      addRecipe: '添加菜谱',
       form: {
         name: '菜谱名称',
         namePlaceholder: '例如 西红柿炒蛋',
@@ -281,6 +342,11 @@ export const translations = {
       empty: '可以先随机生成这一餐。',
       confirm: '确认',
       cancel: '取消',
+      removeRecipeLabel: (name: string) => `删除${name}`,
+      status: {
+        planned: '待确认',
+        completed: '已完成',
+      },
     },
     labels: {
       storage: {

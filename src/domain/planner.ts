@@ -14,6 +14,10 @@ export type GenerateMealResult =
   | { status: 'generated'; meal: Meal }
   | { status: 'failed'; reason: '缺食材' | '数量不足' | '单位需要确认' | '餐次不匹配' | '菜谱不足' };
 
+type BuildPlannedMealItemOptions = {
+  allowInsufficientInventory?: boolean;
+};
+
 function mealTypeMatches(recipe: Recipe, mealType: GenerateMealInput['mealType']): boolean {
   return recipe.mealTypes.includes(mealType) || recipe.mealTypes.includes('any');
 }
@@ -83,6 +87,54 @@ function buildConsumption(recipe: Recipe, ingredients: IngredientItem[]) {
     .filter((item): item is NonNullable<typeof item> => item !== null);
 }
 
+export function getRecipeInventoryWarnings(recipe: Recipe, ingredients: IngredientItem[], today: string): string[] {
+  const warnings: string[] = [];
+
+  for (const recipeIngredient of recipe.ingredients.filter((ingredient) => ingredient.required)) {
+    const inventoryItem = findInventoryIngredient(ingredients, recipeIngredient.canonicalName);
+    if (!inventoryItem || getExpiryStatus(inventoryItem, today) === 'expired') {
+      warnings.push('missingIngredient');
+      continue;
+    }
+
+    const convertedNeed = convertQuantity(recipeIngredient.quantity, recipeIngredient.unit, inventoryItem.unit);
+    if (convertedNeed === null) {
+      warnings.push('unitNeedsConfirmation');
+      continue;
+    }
+
+    if (inventoryItem.quantity < convertedNeed) {
+      warnings.push('insufficientQuantity');
+    }
+  }
+
+  return [...new Set(warnings)];
+}
+
+export function buildPlannedMealItem(
+  recipe: Recipe,
+  ingredients: IngredientItem[],
+  today: string,
+  options: BuildPlannedMealItemOptions = {},
+): PlannedMealItem | null {
+  const inventoryWarnings = getRecipeInventoryWarnings(recipe, ingredients, today);
+  if (inventoryWarnings.length > 0 && !options.allowInsufficientInventory) {
+    return null;
+  }
+
+  const scored = scoreRecipe(recipe, ingredients, today);
+  return {
+    id: `planned-${crypto.randomUUID()}`,
+    recipeSnapshot: recipe,
+    plannedServings: 1,
+    plannedConsumption: buildConsumption(recipe, ingredients),
+    status: 'planned',
+    reasons: scored.reasons,
+    warnings: [...scored.warnings, ...inventoryWarnings].slice(0, 2),
+    locked: false,
+  };
+}
+
 function recipeIsFeasible(recipe: Recipe, ingredients: IngredientItem[], today: string): boolean {
   return recipe.ingredients
     .filter((ingredient) => ingredient.required)
@@ -127,16 +179,10 @@ export function generateMeal(input: GenerateMealInput): GenerateMealResult {
   const topScore = candidates[0].score;
   const topCandidates = candidates.filter((candidate) => candidate.score >= topScore - 10);
   const selected = topCandidates[Math.floor(Math.random() * topCandidates.length)];
-  const item: PlannedMealItem = {
-    id: `planned-${crypto.randomUUID()}`,
-    recipeSnapshot: selected.recipe,
-    plannedServings: 1,
-    plannedConsumption: buildConsumption(selected.recipe, input.ingredients),
-    status: 'planned',
-    reasons: selected.reasons,
-    warnings: selected.warnings,
-    locked: false,
-  };
+  const item = buildPlannedMealItem(selected.recipe, input.ingredients, input.today);
+  if (!item) {
+    return { status: 'failed', reason: '缺食材' };
+  }
 
   return { status: 'generated', meal: { mealType: input.mealType, items: [item] } };
 }

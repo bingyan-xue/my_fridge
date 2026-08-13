@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Settings as SettingsIcon } from 'lucide-react';
 import { BottomNav, type PageId } from './components/BottomNav';
 import type { AppData } from './domain/types';
 import { loadLanguage, saveLanguage, translations, type Language } from './i18n/translations';
@@ -28,6 +29,14 @@ export function App() {
   return (
     <div className="appShell">
       <main className="pageFrame">
+        <button
+          className={page === 'settings' ? 'settingsTopButton settingsTopButtonActive' : 'settingsTopButton'}
+          type="button"
+          aria-label={t.nav.settings}
+          onClick={() => setPage('settings')}
+        >
+          <SettingsIcon aria-hidden="true" size={20} />
+        </button>
         {page === 'today' && <TodayPage appData={appData} onChange={updateAppData} t={t} />}
         {page === 'inventory' && <InventoryPage appData={appData} onChange={updateAppData} t={t} />}
         {page === 'recipes' && <RecipesPage appData={appData} onChange={updateAppData} t={t} />}

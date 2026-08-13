@@ -50,6 +50,7 @@ The Demo is not a full kitchen management system. It tests one idea: if meal rec
 
 - Complete the main loop: add ingredients, generate meals, swap a meal, mark a meal as cooked, and deduct inventory.
 - Validate whether inventory-driven meal generation reduces everyday cooking decisions.
+- Validate whether users can directly add an existing recipe to a meal when they already know what they want to eat, while keeping the inventory deduction loop intact.
 - Validate whether prioritizing soon-to-expire ingredients helps reduce food waste.
 - Validate whether users are willing to maintain a lightweight home inventory.
 - Leave room for future mobile app features such as sync, recognition, shopping support, and household collaboration.
@@ -88,15 +89,19 @@ After grocery shopping, the user opens My Fridge and adds new ingredients throug
 
 The user opens the Today page, and the system generates breakfast, lunch, and dinner based on current inventory.
 
-#### Use Case 3: Swap One Meal
+#### Use Case 3: Manually Plan One Meal Before Cooking
+
+When the user already knows what they want to eat, they can directly select an existing recipe and add it to breakfast, lunch, or dinner on the Today page. They can filter recipes by meal type, nutrition tags, and search text. Recipes with insufficient inventory can still be added to the plan, but the app must show missing ingredient or insufficient quantity warnings.
+
+#### Use Case 4: Swap One Meal
 
 If one suggested meal does not fit, the user can swap only that meal while keeping the rest unchanged.
 
-#### Use Case 4: Deduct Inventory After Cooking
+#### Use Case 5: Deduct Inventory After Cooking
 
 After cooking a meal, the user marks it as cooked. The system deducts the expected ingredient usage from inventory.
 
-#### Use Case 5: Handle Soon-to-Expire Ingredients
+#### Use Case 6: Handle Soon-to-Expire Ingredients
 
 The system identifies ingredients close to expiration and prioritizes them during meal generation.
 
@@ -116,6 +121,9 @@ The Demo includes:
 - At least 40 built-in recipes in Demo V1 to support a reasonable generation success rate.
 - User-created recipes.
 - Today’s breakfast, lunch, and dinner generated from existing inventory.
+- Manual recipe selection on the Today page to add an existing recipe to a specific meal.
+- A meal may contain multiple meal items, such as a staple, a protein dish, and a vegetable dish.
+- Manual recipe selection supports search, meal type filtering, and nutrition tag filtering.
 - Per-meal “swap” action.
 - Marking a meal as cooked and deducting inventory.
 - Lightweight health rule prompts.
@@ -159,17 +167,17 @@ Although the Demo is a PWA, the design should leave room for a future native mob
 4. The user may configure basic cooking constraints and diet goals in Settings.
 5. The user opens the Today page.
 6. The system generates meals for the day.
-7. The user accepts the meal plan or swaps individual meals.
+7. The user accepts the meal plan, swaps individual meals, or manually adds an existing recipe to a meal.
 
 ### 4.2 Daily Cooking
 
 1. The user opens the Today page.
 2. The user reviews breakfast, lunch, and dinner.
-3. The user taps “Swap” for any meal that does not fit.
-4. After cooking a meal, the user taps “Cooked.”
+3. The user taps “Swap” for any meal that does not fit, or taps “Add recipe” to manually add a recipe they want to eat.
+4. After cooking a meal item, the user taps “Cooked.”
 5. The system shows the expected ingredient usage.
 6. The user confirms, and inventory is deducted.
-7. The meal status updates to completed.
+7. The meal item status updates to completed.
 
 ### 4.3 Inventory Maintenance
 
@@ -192,7 +200,7 @@ Although the Demo is a PWA, the design should leave room for a future native mob
 
 ### Module Goal
 
-Help users see what to eat today, swap meals, and confirm ingredient usage.
+Help users see what to eat today, randomly swap meals, manually add recipes, and confirm ingredient usage.
 
 ### Requirements
 
@@ -200,7 +208,7 @@ Help users see what to eat today, swap meals, and confirm ingredient usage.
 
 The page displays breakfast, lunch, and dinner.
 
-Each meal shows:
+Each meal may contain one or more meal items. Each meal item shows:
 
 - Recipe name.
 - Meal type.
@@ -210,6 +218,12 @@ Each meal shows:
 - Whether soon-to-expire ingredients are used.
 - Health prompts.
 - Status: planned, cooked, or skipped.
+
+#### Multiple Meal Items in One Meal
+
+A meal is not forced to equal one recipe. Lunch and dinner may contain multiple items, such as “rice + tomato eggs + greens.” Breakfast may also contain multiple basic items or combination items.
+
+In Demo V1, each meal item is confirmed and canceled independently. Confirming one item deducts only that item’s ingredients. Canceling that item restores only the deduction created by that item.
 
 #### Generate Today’s Meals
 
@@ -223,6 +237,27 @@ Generation requirements:
 - Try to satisfy cooking constraints.
 - Try to maintain a rough balance of staple foods, protein, and vegetables.
 - Choose randomly from feasible candidates so the result does not feel fixed.
+
+#### Manually Add a Recipe to a Meal
+
+The user can tap “Add recipe” on breakfast, lunch, or dinner and manually choose an existing recipe to add to that meal.
+
+Picker requirements:
+
+- Use a modal or equivalent focused interface so the Today page does not become too long.
+- Support recipe name search.
+- Support meal type filtering.
+- Support nutrition tag filtering.
+- Nutrition tags should be ordered with carbs, protein, and fat first. Fiber, vegetables, fruit, dairy, and other tags may appear after them.
+- Recipe results should show main ingredients and inventory availability hints.
+
+Inventory handling:
+
+- Recipes with enough inventory can be added normally.
+- Recipes with missing ingredients, insufficient quantity, or units that cannot be confirmed automatically may still be added to the plan.
+- Insufficient recipes must show warnings in the picker and after they are added to the meal.
+- Adding a recipe to the plan does not deduct inventory.
+- When the user taps “Cooked,” if inventory is still insufficient, the app must block confirmation and tell the user to update inventory first.
 
 #### Swap One Meal
 
@@ -251,7 +286,7 @@ After user confirmation:
 
 - Inventory is deducted.
 - Meal status is updated.
-- If inventory is insufficient, the user is prompted to adjust the deduction.
+- If inventory is insufficient, confirmation is blocked, inventory is not deducted, and the user is prompted to update inventory first.
 - If an ingredient reaches zero, it may be marked as used up.
 
 ## 5.2 Inventory Module
@@ -588,22 +623,28 @@ MealPlan {
   id: string
   date: string
   meals: Meal[]
-  status: "draft" | "active" | "partiallyCompleted" | "completed"
-  generatedAt: string
+  createdAt: string
   updatedAt: string
 }
 ```
 
 ```text
 Meal {
-  id: string
   mealType: "breakfast" | "lunch" | "dinner"
-  recipeId: string
-  recipeName: string
+  items: PlannedMealItem[]
+}
+```
+
+```text
+PlannedMealItem {
+  id: string
+  recipeSnapshot: Recipe
+  plannedServings: number
   plannedConsumption: ConsumptionItem[]
-  healthWarnings?: string[]
-  matchReasons?: string[]
-  status: "planned" | "completed" | "skipped"
+  status: "planned" | "completed"
+  reasons: string[]
+  warnings: string[]
+  locked: boolean
 }
 ```
 
@@ -611,10 +652,19 @@ Meal {
 ConsumptionItem {
   ingredientItemId: string
   ingredientName: string
+  canonicalName: string
   quantity: number
   unit: string
+  requiresConfirmation: boolean
 }
 ```
+
+Notes:
+
+- `Meal.items` supports multiple meal items in one meal.
+- Random generation and manual recipe selection should both create `PlannedMealItem` objects.
+- `recipeSnapshot` stores the recipe as it was when the item was planned, so later recipe edits do not unexpectedly change planned meals.
+- Completed meal items are locked and should not be overwritten by random swaps.
 
 ### 6.4 UserSettings
 
@@ -808,7 +858,8 @@ Description:
 
 Handling:
 
-- Do not recommend recipes with missing required ingredients.
+- Random generation does not recommend recipes with missing required ingredients.
+- Manual recipe addition may still add recipes with missing ingredients to the plan, but it must show warnings and block confirmation if inventory is still insufficient.
 - Show which meal failed.
 - Explain the reason.
 - Prompt the user to add inventory or create a recipe that works with current ingredients.
@@ -944,6 +995,7 @@ Includes:
 - Manual inventory entry.
 - Structured recipe library.
 - Today’s three-meal generation.
+- Manual addition of an existing recipe to a meal on Today.
 - Per-meal swap.
 - Inventory deduction after cooking.
 - Health rules layer.
@@ -1004,6 +1056,9 @@ The following items are not required for the Demo. They belong to later product 
 - Users can view built-in recipes and user-created recipes.
 - The system includes at least 40 built-in recipes.
 - Users can generate today’s three meals.
+- Users can manually select an existing recipe and add it to breakfast, lunch, or dinner on the Today page.
+- The Today manual recipe picker supports search, meal type filtering, and nutrition tag filtering.
+- A meal can contain multiple meal items.
 - Users can swap any individual meal.
 - Users can mark a meal as cooked and deduct inventory.
 - Local data still exists after the user closes and reopens the app.
@@ -1012,7 +1067,9 @@ The following items are not required for the Demo. They belong to later product 
 
 ### 13.2 Recommendation Quality
 
-- The system does not recommend recipes missing required ingredients.
+- Random generation does not recommend recipes missing required ingredients.
+- The system shows warnings when the user manually adds a recipe with insufficient inventory.
+- Meal items with insufficient inventory cannot be confirmed or deducted.
 - The system prioritizes soon-to-expire ingredients.
 - The system respects cooking time, difficulty, cookware, and lunchbox constraints.
 - The system can explain why generation failed.

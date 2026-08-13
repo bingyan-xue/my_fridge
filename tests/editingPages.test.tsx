@@ -6,6 +6,52 @@ import { RecipesPage } from '../src/pages/RecipesPage';
 import { translations } from '../src/i18n/translations';
 
 describe('editing pages', () => {
+  it('summarizes inventory freshness before the item list', () => {
+    const appData = createSampleAppData();
+    const onChange = vi.fn();
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-08-12T12:00:00.000Z'));
+    const ingredients = appData.ingredients.slice(0, 4).map((ingredient, index) => ({
+      ...ingredient,
+      expiryDate: index === 0 ? '2026-08-10' : index === 1 ? '2026-08-13' : index === 2 ? '2026-08-20' : undefined,
+      estimatedExpiryDate: undefined,
+    }));
+
+    render(<InventoryPage appData={{ ...appData, ingredients }} onChange={onChange} t={translations.en} />);
+
+    const summary = screen.getByRole('region', { name: 'Inventory freshness summary' });
+    expect(within(summary).getAllByText('1')).toHaveLength(4);
+    expect(within(summary).getByText('Expired')).toBeInTheDocument();
+    expect(within(summary).getByText('Expiring soon')).toBeInTheDocument();
+    expect(within(summary).getByText('Good')).toBeInTheDocument();
+    expect(within(summary).getByText('Unknown')).toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
+  it('keeps the add ingredient form collapsed until requested', () => {
+    const appData = createSampleAppData();
+    const onChange = vi.fn();
+
+    render(<InventoryPage appData={appData} onChange={onChange} t={translations.en} />);
+
+    expect(screen.queryByLabelText('Ingredient name')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Add ingredient' }));
+
+    expect(screen.getByLabelText('Ingredient name')).toBeInTheDocument();
+  });
+
+  it('keeps the add recipe form collapsed until requested', () => {
+    const appData = createSampleAppData();
+    const onChange = vi.fn();
+
+    render(<RecipesPage appData={appData} onChange={onChange} t={translations.en} />);
+
+    expect(screen.queryByLabelText('Recipe name')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Add recipe' }));
+
+    expect(screen.getByLabelText('Recipe name')).toBeInTheDocument();
+  });
+
   it('updates an inventory item expiry date from the list', () => {
     const appData = createSampleAppData();
     const onChange = vi.fn();

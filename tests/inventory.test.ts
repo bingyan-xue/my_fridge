@@ -183,6 +183,20 @@ describe('meal completion inventory transactions', () => {
     expect(completed.mealPlans[0].meals[0].items[0].locked).toBe(true);
   });
 
+  it('does not complete a meal item when inventory quantity is insufficient', () => {
+    const lowInventory = {
+      ...data,
+      ingredients: data.ingredients.map((ingredient) => (ingredient.id === 'ing-egg' ? { ...ingredient, quantity: 0 } : ingredient)),
+    };
+
+    const result = completePlannedMealItem(lowInventory, 'plan-1', 'planned-egg', '2026-07-27T08:00:00.000Z');
+
+    expect(result.ingredients[0].quantity).toBe(0);
+    expect(result.inventoryTransactions).toHaveLength(0);
+    expect(result.mealPlans[0].meals[0].items[0].status).toBe('planned');
+    expect(result.mealPlans[0].meals[0].items[0].locked).toBe(false);
+  });
+
   it('restores inventory after canceling confirmation', () => {
     const completed = completePlannedMealItem(data, 'plan-1', 'planned-egg', '2026-07-27T08:00:00.000Z');
     const undone = undoCompletedMealItem(completed, 'plan-1', 'planned-egg', '2026-07-27T08:05:00.000Z');

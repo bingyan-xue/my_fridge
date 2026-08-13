@@ -90,6 +90,7 @@ describe('localized display text', () => {
       <MealCard
         meal={breakfast}
         mealType="breakfast"
+        onAddRecipe={vi.fn()}
         onCancel={vi.fn()}
         onConfirm={vi.fn()}
         onGenerate={vi.fn()}
@@ -111,6 +112,7 @@ describe('localized display text', () => {
       <MealCard
         meal={breakfast}
         mealType="breakfast"
+        onAddRecipe={vi.fn()}
         onCancel={vi.fn()}
         onConfirm={vi.fn()}
         onGenerate={vi.fn()}

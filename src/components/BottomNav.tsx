@@ -1,7 +1,8 @@
-import { BookOpen, CalendarDays, Refrigerator, Settings } from 'lucide-react';
+import { BookOpen, CalendarDays, Refrigerator } from 'lucide-react';
 import type { Translation } from '../i18n/translations';
 
 export type PageId = 'today' | 'inventory' | 'recipes' | 'settings';
+type MainPageId = Exclude<PageId, 'settings'>;
 
 type BottomNavProps = {
   activePage: PageId;
@@ -9,11 +10,10 @@ type BottomNavProps = {
   t: Translation;
 };
 
-const navItems: Array<{ id: PageId; labelKey: PageId; icon: typeof CalendarDays }> = [
+const navItems: Array<{ id: MainPageId; labelKey: MainPageId; icon: typeof CalendarDays }> = [
   { id: 'today', labelKey: 'today', icon: CalendarDays },
   { id: 'inventory', labelKey: 'inventory', icon: Refrigerator },
   { id: 'recipes', labelKey: 'recipes', icon: BookOpen },
-  { id: 'settings', labelKey: 'settings', icon: Settings },
 ];
 
 export function BottomNav({ activePage, onChange, t }: BottomNavProps) {

@@ -1,4 +1,4 @@
-import { Trash2 } from 'lucide-react';
+import { CalendarClock, Tag, Trash2 } from 'lucide-react';
 import { getEffectiveExpiryDate, getExpiryStatus } from '../domain/expiry';
 import type { IngredientItem } from '../domain/types';
 import type { Translation } from '../i18n/translations';
@@ -23,13 +23,18 @@ export function IngredientList({ ingredients, today, onQuantityChange, onExpiryD
         const status = getExpiryStatus(item, today);
         const expiryDate = getEffectiveExpiryDate(item);
         return (
-          <article className="listItem" key={item.id}>
+          <article className={`listItem inventoryItem freshness-${status}`} key={item.id}>
             <div className="itemHeader">
-              <div>
-                <h2>{item.name}</h2>
-                <p>
-                  {t.labels.storage[item.storageLocation]} · {expiryDate ? t.inventory.list.expiresOn(expiryDate) : t.inventory.list.expiryMissing}
-                </p>
+              <div className="itemTitleGroup">
+                <span className="lineGlyph ingredientGlyph" aria-hidden="true">
+                  <Tag size={20} />
+                </span>
+                <div>
+                  <h2>{item.name}</h2>
+                  <p>
+                    {t.labels.storage[item.storageLocation]} · {expiryDate ? t.inventory.list.expiresOn(expiryDate) : t.inventory.list.expiryMissing}
+                  </p>
+                </div>
               </div>
               <span className={`statusPill status-${status}`}>{t.labels.expiryStatus[status]}</span>
             </div>
@@ -51,7 +56,8 @@ export function IngredientList({ ingredients, today, onQuantityChange, onExpiryD
               </button>
             </div>
 
-            <label className="fieldGroup">
+            <label className="fieldGroup expiryField">
+              <CalendarClock aria-hidden="true" size={16} />
               <span>{t.inventory.list.expiryDateLabel(item.name)}</span>
               <input type="date" value={expiryDate ?? ''} onChange={(event) => onExpiryDateChange(item.id, event.target.value)} />
             </label>

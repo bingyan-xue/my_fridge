@@ -1,7 +1,7 @@
 import { Pencil, Trash2 } from 'lucide-react';
 import { RecipeForm } from './RecipeForm';
 import type { RecipeFormInput } from '../domain/recipes';
-import type { Recipe } from '../domain/types';
+import type { NutritionTag, Recipe } from '../domain/types';
 import { formatQuantity } from '../i18n/formatters';
 import type { Translation } from '../i18n/translations';
 
@@ -15,6 +15,10 @@ type RecipeListProps = {
   t: Translation;
 };
 
+function nutritionClassName(tag: NutritionTag): string {
+  return `nutritionChip nutrition-${tag}`;
+}
+
 export function RecipeList({ editingRecipeId, recipes, onCancelEdit, onEdit, onSubmitEdit, onDelete, t }: RecipeListProps) {
   if (recipes.length === 0) {
     return <p className="emptyText">{t.recipes.list.empty}</p>;
@@ -23,7 +27,7 @@ export function RecipeList({ editingRecipeId, recipes, onCancelEdit, onEdit, onS
   return (
     <div className="itemList">
       {recipes.map((recipe) => (
-        <article className="listItem" key={recipe.id}>
+        <article className="listItem recipeItem" key={recipe.id}>
           <div className="itemHeader">
             <div>
               <h2>{recipe.name}</h2>
@@ -47,6 +51,15 @@ export function RecipeList({ editingRecipeId, recipes, onCancelEdit, onEdit, onS
             .map((ingredient) => `${ingredient.name} ${formatQuantity(ingredient.quantity, ingredient.unit, t)}`)
             .join(' / ')}
           </p>
+          {recipe.nutritionTags.length > 0 && (
+            <div className="nutritionChipRow">
+              {recipe.nutritionTags.map((tag) => (
+                <span className={nutritionClassName(tag)} key={tag}>
+                  {t.labels.nutrition[tag]}
+                </span>
+              ))}
+            </div>
+          )}
           {editingRecipeId === recipe.id && (
             <RecipeForm editingRecipe={recipe} onCancelEdit={onCancelEdit} onSubmit={(input) => onSubmitEdit(recipe, input)} t={t} />
           )}

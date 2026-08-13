@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { App } from './App';
 import { LANGUAGE_STORAGE_KEY } from './i18n/translations';
@@ -24,6 +24,26 @@ describe('App shell', () => {
     expect(screen.getByRole('heading', { name: 'Inventory' })).toBeInTheDocument();
   });
 
+  it('keeps settings out of the bottom navigation', () => {
+    render(<App />);
+
+    const nav = screen.getByRole('navigation', { name: 'Main navigation' });
+
+    expect(within(nav).getByRole('button', { name: /Today/ })).toBeInTheDocument();
+    expect(within(nav).getByRole('button', { name: /Inventory/ })).toBeInTheDocument();
+    expect(within(nav).getByRole('button', { name: /Recipes/ })).toBeInTheDocument();
+    expect(within(nav).queryByRole('button', { name: /Settings/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Settings' })).toBeInTheDocument();
+  });
+
+  it('opens settings from the top action', () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Settings' }));
+
+    expect(screen.getByRole('heading', { name: 'Settings' })).toBeInTheDocument();
+  });
+
   it('switches the interface to Simplified Chinese and persists the choice', () => {
     render(<App />);
 
@@ -39,6 +59,7 @@ describe('App shell', () => {
     const { unmount } = render(<App />);
 
     fireEvent.click(screen.getByRole('button', { name: /Recipes/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Add recipe' }));
     fireEvent.change(screen.getByLabelText('Recipe name'), { target: { value: 'Test Rice' } });
     fireEvent.change(screen.getByLabelText('Ingredient 1 name'), { target: { value: 'Rice' } });
     fireEvent.change(screen.getByLabelText('Ingredient 1 quantity'), { target: { value: '100' } });

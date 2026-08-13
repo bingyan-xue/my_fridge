@@ -11,10 +11,11 @@ The demo serves a single user and runs locally first. It does not aim to cover t
 1. The user enters ingredients through a form.
 2. The system estimates expiration dates from default shelf life rules.
 3. The user can randomly generate breakfast, lunch, or dinner.
-4. A generated result is only a plan. It does not deduct inventory.
-5. The system deducts inventory only after the user confirms that a meal item was made.
-6. If the user cancels that confirmation, the system restores the deducted inventory.
-7. The user can export and import local data for backup and device transfer.
+4. The user can also manually select an existing recipe and add it to a meal on the Today page.
+5. Generated or manually added results are only plans. They do not deduct inventory.
+6. The system rechecks inventory before confirmation and deducts inventory only if enough inventory is available.
+7. If the user cancels that confirmation, the system restores the deducted inventory.
+8. The user can export and import local data for backup and device transfer.
 
 ## 2. Non goals
 
@@ -99,12 +100,14 @@ In the demo, `Recipe` is a broad concept. It can represent:
 
 ### 4.3 planner
 
-Handles meal generation:
+Handles meal generation and planning:
 
 - Generate by meal type
 - Filter infeasible items
 - Rule based scoring
 - Weighted random selection
+- Convert a selected recipe into a planned meal item
+- Check inventory availability for a planned meal item
 - Same day repetition control
 - Basic meal fallback
 - Recommendation reasons
@@ -154,6 +157,8 @@ Handles pages:
 - Settings
 
 The UI calls core modules instead of implementing complex business rules directly.
+
+The Today page adds a `RecipePicker` style component or an equivalent component for manual recipe selection. It handles search, filters, and selection. It does not mutate inventory directly.
 
 ## 5. Data models
 
@@ -334,6 +339,10 @@ type PlannedMealItem = {
 
 The planner stores a recipe snapshot at generation time. A confirmed item has `status = 'completed'` and `locked = true`, so it cannot be replaced by random generation. Unconfirmed items can be replaced.
 
+Random generation and manual recipe selection should use the same helper to create `PlannedMealItem` objects, so inventory usage is calculated in one place.
+
+When a manually added recipe has insufficient inventory, the item may still enter the plan, but `warnings` must record missing ingredients, insufficient quantity, or units that need confirmation. The warning does not block saving the plan, but it blocks later inventory deduction.
+
 ### 5.10 ConsumptionItem
 
 ```ts
@@ -415,15 +424,32 @@ The demo does not include AI natural language entry or complex quick parsing.
 
 Breakfast, lunch, and dinner use different meal type tags. Breakfast items are not recommended for lunch by default unless they are marked as any meal or lunch compatible.
 
-### 6.4 Confirm meal item
+### 6.4 Manually add a recipe to a meal
+
+1. The user clicks “Add recipe” on breakfast, lunch, or dinner on the Today page.
+2. The UI opens a recipe picker.
+3. The user can search by recipe name.
+4. The user can filter by meal type, defaulting to the current meal type.
+5. The user can filter by nutrition tags. Tag order is `carb`, `protein`, `fat` first, then `fiber`, `vegetable`, `fruit`, and `dairy`.
+6. The system calculates inventory availability for recipes in the list.
+7. Recipes with enough inventory appear normally.
+8. Recipes with missing ingredients, insufficient quantity, or units that cannot be confirmed automatically may still appear and may still be added, but they must show warnings.
+9. After the user chooses a recipe, the system converts it into a `PlannedMealItem` and appends it to the current meal’s `items`.
+10. Manual addition only saves a plan. It does not deduct inventory.
+
+Manual addition uses the same `plannedConsumption` calculation as random generation. The difference is that random generation filters out infeasible candidates, while manual addition allows infeasible candidates into the plan with warnings.
+
+### 6.5 Confirm meal item
 
 1. The user confirms a planned meal item.
-2. The system deducts inventory from `plannedConsumption`.
-3. The system writes an `InventoryTransaction`.
-4. The item status becomes `completed`.
-5. The item is locked and cannot be replaced by random generation.
+2. The system rechecks `plannedConsumption` against the latest inventory.
+3. If inventory is insufficient, an ingredient was deleted, or units need confirmation, the system does not deduct inventory and shows an error.
+4. If inventory is sufficient, the system deducts inventory from `plannedConsumption`.
+5. The system writes an `InventoryTransaction`.
+6. The item status becomes `completed`.
+7. The item is locked and cannot be replaced by random generation.
 
-### 6.5 Cancel confirmation
+### 6.6 Cancel confirmation
 
 1. The user cancels a confirmed item.
 2. The system confirms that the item has an existing deduction transaction.
@@ -432,21 +458,21 @@ Breakfast, lunch, and dinner use different meal type tags. Breakfast items are n
 5. The item status returns to `planned`.
 6. The item is unlocked and can be replaced by random generation.
 
-### 6.6 Manually edit inventory
+### 6.7 Manually edit inventory
 
 1. The user edits inventory quantity.
 2. The system directly updates the current quantity.
 3. The system records `manualAdjustment`.
 4. The system does not recalculate historical deductions.
 
-### 6.7 Export data
+### 6.8 Export data
 
 1. The user opens Settings.
 2. The user clicks export data.
 3. The system serializes `AppData` as JSON.
 4. The browser downloads a file, for example `my-fridge-backup-2026-07-27.json`.
 
-### 6.8 Import data
+### 6.9 Import data
 
 1. The user opens Settings.
 2. The user clicks import data.
@@ -473,7 +499,7 @@ The result must be explainable, but the UI does not show detailed scores.
 
 ### 7.2 Filtering rules
 
-Candidates must satisfy:
+Random generation candidates must satisfy:
 
 - Meal type matches.
 - Required ingredients exist.
@@ -482,6 +508,13 @@ Candidates must satisfy:
 - Confirmed items cannot be overwritten.
 
 Seasonings are not inventory constraints.
+
+Manual recipe addition does not use the same hard filter. During manual addition:
+
+- Recipes that do not match the current meal type are hidden by default, but the user may switch the filter to another meal type or all meal types.
+- Recipes with missing ingredients, insufficient quantity, or units that cannot be confirmed automatically can still be added to the plan.
+- Insufficiency details must be written to `warnings` and shown in the UI.
+- When the user later confirms deduction, the system must validate again. If validation fails, it must not write inventory changes or transaction records.
 
 ### 7.3 Scoring rules
 
@@ -546,6 +579,28 @@ Examples:
 
 Detailed scores are not shown.
 
+### 7.8 Manual recipe picker filters
+
+The manual picker runs on the Today page. It is not the global recipe management page.
+
+Filter dimensions:
+
+- Search text: matches recipe name.
+- Meal type: defaults to the current meal type and can switch to breakfast, lunch, dinner, or all.
+- Nutrition tags: supports multi-select.
+
+Nutrition tags use this fixed display order:
+
+1. `carb`
+2. `protein`
+3. `fat`
+4. `fiber`
+5. `vegetable`
+6. `fruit`
+7. `dairy`
+
+This order reflects the demo’s lightweight nutrition focus: users should quickly see staple foods, protein, and fat first, then secondary tags.
+
 ## 8. Local storage and migration
 
 The demo uses localStorage.
@@ -596,7 +651,27 @@ Show one of these fixed failure reasons:
 - Meal type mismatch
 - Not enough recipes
 
-### 9.4 Import failed
+### 9.4 Manual recipe addition has insufficient inventory
+
+When manually adding a recipe, the app may allow the recipe into the plan but must show warnings for:
+
+- Missing ingredients
+- Insufficient quantity
+- Units that need confirmation
+
+When the user confirms the meal item, if the problem still exists, the system must block confirmation, avoid inventory deduction, and avoid writing an `InventoryTransaction`.
+
+### 9.5 Meal item confirmation failed
+
+Confirmation failure types:
+
+- Inventory quantity is insufficient
+- An ingredient was deleted
+- Units cannot be deducted automatically, and the user needs to adjust inventory or recipe units first
+
+On failure, the item stays `planned` and inventory remains unchanged.
+
+### 9.6 Import failed
 
 Error types:
 
@@ -607,7 +682,7 @@ Error types:
 
 Failed import must not overwrite current data.
 
-### 9.5 Import overwrite confirmation
+### 9.7 Import overwrite confirmation
 
 Before import, show:
 
@@ -615,7 +690,7 @@ Before import, show:
 导入会覆盖当前本地数据。是否继续？
 ```
 
-### 9.6 Expiring soon boundary
+### 9.8 Expiring soon boundary
 
 Expiring soon is calculated from the user's local date. If the effective expiry date falls on today, tomorrow, or the day after tomorrow, the ingredient is treated as expiring within the next 2 days and receives high priority.
 
@@ -660,6 +735,10 @@ Required tests:
 - `kg/g`, `L/ml`, and `斤/g` conversion
 - Unit mismatch is marked as requiring confirmation
 - Confirmed items cannot be overwritten by random generation
+- Manual recipe addition appends to the selected meal instead of overwriting existing items
+- Manually added recipes with insufficient inventory keep warnings
+- Meal items with insufficient inventory cannot be confirmed or deducted
+- The manual recipe picker supports meal type filtering, nutrition tag filtering, and search
 - Canceling confirmation restores inventory
 - Same day repetition is avoided where possible
 - Exported JSON includes full `AppData`

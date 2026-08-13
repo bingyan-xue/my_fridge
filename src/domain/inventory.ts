@@ -70,11 +70,42 @@ export function updateIngredientExpiryDate(
   );
 }
 
+export type MealCompletionAvailability =
+  | { ok: true }
+  | { ok: false; reason: 'missingIngredient' | 'insufficientQuantity' | 'unitNeedsConfirmation' };
+
+export function canCompletePlannedMealItem(data: AppData, mealPlanId: string, itemId: string): MealCompletionAvailability {
+  const plan = data.mealPlans.find((candidate) => candidate.id === mealPlanId);
+  const meal = plan?.meals.find((candidate) => candidate.items.some((item) => item.id === itemId));
+  const item = meal?.items.find((candidate) => candidate.id === itemId);
+  if (!plan || !meal || !item || item.status === 'completed') {
+    return { ok: false, reason: 'missingIngredient' };
+  }
+
+  for (const consumption of item.plannedConsumption) {
+    const ingredient = data.ingredients.find((candidate) => candidate.id === consumption.ingredientItemId);
+    if (!ingredient) {
+      return { ok: false, reason: 'missingIngredient' };
+    }
+    if (consumption.requiresConfirmation || ingredient.unit !== consumption.unit) {
+      return { ok: false, reason: 'unitNeedsConfirmation' };
+    }
+    if (ingredient.quantity < consumption.quantity) {
+      return { ok: false, reason: 'insufficientQuantity' };
+    }
+  }
+
+  return { ok: true };
+}
+
 export function completePlannedMealItem(data: AppData, mealPlanId: string, itemId: string, now: string): AppData {
   const plan = data.mealPlans.find((candidate) => candidate.id === mealPlanId);
   const meal = plan?.meals.find((candidate) => candidate.items.some((item) => item.id === itemId));
   const item = meal?.items.find((candidate) => candidate.id === itemId);
   if (!plan || !meal || !item || item.status === 'completed') {
+    return data;
+  }
+  if (!canCompletePlannedMealItem(data, mealPlanId, itemId).ok) {
     return data;
   }
 
@@ -112,6 +143,32 @@ export function completePlannedMealItem(data: AppData, mealPlanId: string, itemI
         : candidatePlan,
     ),
     inventoryTransactions: [...data.inventoryTransactions, ...transactions],
+  };
+}
+
+export function removePlannedMealItem(data: AppData, mealPlanId: string, itemId: string, now: string): AppData {
+  const plan = data.mealPlans.find((candidate) => candidate.id === mealPlanId);
+  const meal = plan?.meals.find((candidate) => candidate.items.some((item) => item.id === itemId));
+  const item = meal?.items.find((candidate) => candidate.id === itemId);
+  if (!plan || !meal || !item || item.status === 'completed') {
+    return data;
+  }
+
+  return {
+    ...data,
+    mealPlans: data.mealPlans.map((candidatePlan) =>
+      candidatePlan.id === mealPlanId
+        ? {
+            ...candidatePlan,
+            updatedAt: now,
+            meals: candidatePlan.meals.map((candidateMeal) =>
+              candidateMeal.mealType === meal.mealType
+                ? { ...candidateMeal, items: candidateMeal.items.filter((candidateItem) => candidateItem.id !== itemId) }
+                : candidateMeal,
+            ),
+          }
+        : candidatePlan,
+    ),
   };
 }
 

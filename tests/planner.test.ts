@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { generateMeal } from '../src/domain/planner';
+import { buildPlannedMealItem, generateMeal } from '../src/domain/planner';
 import type { IngredientItem, Recipe } from '../src/domain/types';
 
 const today = '2026-07-27';
@@ -85,6 +85,37 @@ describe('generateMeal', () => {
       expect(result.meal.items[0].plannedConsumption[0].quantity).toBe(0.1);
       expect(result.meal.items[0].plannedConsumption[0].unit).toBe('kg');
     }
+  });
+
+  it('builds a planned meal item from a selected recipe', () => {
+    const item = buildPlannedMealItem(boiledEgg, [egg], today);
+
+    expect(item?.recipeSnapshot.id).toBe('recipe-egg');
+    expect(item?.plannedConsumption[0]).toMatchObject({
+      ingredientItemId: 'ing-egg',
+      canonicalName: egg.canonicalName,
+      quantity: 1,
+      unit: egg.unit,
+      requiresConfirmation: false,
+    });
+    expect(item?.status).toBe('planned');
+    expect(item?.locked).toBe(false);
+  });
+
+  it('allows manually selected recipes with insufficient inventory and keeps warnings', () => {
+    const lowEgg = { ...egg, quantity: 0 };
+    const item = buildPlannedMealItem(boiledEgg, [lowEgg], today, { allowInsufficientInventory: true });
+
+    expect(item).not.toBeNull();
+    expect(item?.warnings.length).toBeGreaterThan(0);
+    expect(item?.plannedConsumption[0].quantity).toBe(1);
+  });
+
+  it('keeps random generation from selecting recipes with insufficient inventory', () => {
+    const lowEgg = { ...egg, quantity: 0 };
+    const result = generateMeal({ mealType: 'breakfast', today, ingredients: [lowEgg], recipes: [boiledEgg] });
+
+    expect(result.status).toBe('failed');
   });
 
   it('does not overwrite locked items', () => {
