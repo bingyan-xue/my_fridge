@@ -1,7 +1,7 @@
 # My Fridge Project State
 
 > 更新日期：2026-08-12  
-> 当前阶段：Demo V1 核心闭环已跑通，并完成一轮本地手动验收。默认界面语言为英文，支持切换简体中文；内置示例数据已改为英文主数据；单位和 Today 推荐理由会按当前语言显示；库存过期日期和菜谱内容现在可编辑；自建菜谱刷新后会保留在列表前面；恢复示例数据和导入数据前都会显示页面内中英文二次确认弹窗；Today 页已支持手动选择菜谱加入某一餐，一餐可以有多道菜，库存不足的菜谱可加入计划但确认时会阻止扣减并提示用户；Today 页完成一轮冰箱线条风 UI 收尾，包括顶部无框排版、底部 Today 主入口样式和三餐时间图标。  
+> 当前阶段：Demo V1 核心闭环已跑通，并完成一轮本地手动验收。默认界面语言为英文，支持切换简体中文；内置示例数据已改为英文主数据；单位和 Today 推荐理由会按当前语言显示；库存过期日期和菜谱内容现在可编辑；自建菜谱刷新后会保留在列表前面；恢复示例数据和导入数据前都会显示页面内中英文二次确认弹窗；Today 页已支持手动选择菜谱加入某一餐，一餐可以有多道菜，库存不足的菜谱可加入计划但确认时会阻止扣减并提示用户；Today 页完成一轮冰箱线条风 UI 收尾，包括顶部无框排版、底部 Today 主入口样式和三餐时间图标；GitHub Pages 已配置并确认可访问。  
 > 后续开发前，先看这里，再看 PRD、ARCH 和实施计划。
 
 ## 最新状态快照：2026-08-12 Today 手动选菜与 UI 收尾
@@ -23,6 +23,8 @@
 - 底部导航里的 Today 现在是主入口视觉：未选中时也保持较深的浅青底和深色文字/图标，选中时为深底浅字；Inventory 和 Recipes 保持原样。
 - 三餐卡片图标改为时间感更强的线条组合：早餐 `Sunrise`、午餐 `Sun`、晚餐 `Moon`。
 - 手动选菜弹窗和确认失败提示均已进入 `src/i18n/translations.ts`，中英文各自显示对应语言。
+- GitHub Pages 部署链路已配置：Vite 使用 `/my_fridge/` base，manifest/icon 路径适配项目页，`.github/workflows/deploy-pages.yml` 会在 push 到 `master` 后自动测试、构建并发布 `dist`。
+- 用户已确认 GitHub Pages 当前可以打开运行。公网地址：`https://bingyan-xue.github.io/my_fridge/`。
 
 本轮验证：
 
@@ -33,8 +35,8 @@ npm.cmd run build
 
 结果：
 
-- 17 个测试文件通过。
-- 84 个测试通过。
+- 18 个测试文件通过。
+- 87 个测试通过。
 - TypeScript 检查通过。
 - Vite 生产构建通过。
 
@@ -74,6 +76,8 @@ npm.cmd run build
 - Testing Library
 - localStorage
 - Web App Manifest
+- GitHub Pages
+- GitHub Actions
 
 本地运行：
 
@@ -85,6 +89,12 @@ npm.cmd run dev
 
 ```text
 http://127.0.0.1:5173/
+```
+
+当前公网 Demo 地址：
+
+```text
+https://bingyan-xue.github.io/my_fridge/
 ```
 
 ### 1.3 已实现功能
@@ -310,6 +320,7 @@ npm.cmd run build
 - Today 顶部无框排版不会遮挡 Settings
 - 底部 Today 主入口未选中/选中样式
 - 三餐卡片图标分别为 Sunrise / Sun / Moon
+- GitHub Pages 项目页 base、manifest 和 icon 路径配置
 
 ## 3. Git 提交节点
 
@@ -321,6 +332,8 @@ master
 
 最近实现提交：
 
+- `6fa28e1` fix: configure github pages deployment
+- `c378b80` feat: polish today navigation and meal icons
 - `5231274` feat: improve today planning and fridge UI
 - `73b1888` fix: protect settings data actions
 - `5e7137a` feat: improve localization and recipe editing
@@ -338,8 +351,9 @@ master
 
 当前工作区状态：
 
-- 最后一次已提交版本 `5231274` 已推送到 GitHub。
-- 当前待提交内容为 2026-08-12 的 Today UI 收尾：顶部无框排版、中文文案微调、底部 Today 主入口样式、三餐时间图标，以及对应测试和本文件更新。提交并推送后，应以最新 Git commit 为准。
+- 最后一次已提交版本 `6fa28e1` 已推送到 GitHub，并触发 GitHub Pages Actions 部署。
+- 2026-08-12 用户确认 GitHub Pages 已能打开运行。
+- 当前待提交内容仅为本文件对 GitHub Pages 部署状态的补充记录。
 
 ## 3.1 2026-08-10 手动验收结果
 
